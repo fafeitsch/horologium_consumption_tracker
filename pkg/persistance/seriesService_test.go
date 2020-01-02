@@ -3,16 +3,14 @@ package orm
 import (
 	"fmt"
 	"github.com/fafeitsch/Horologium/pkg/domain"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestSeriesServiceImpl_CRUD(t *testing.T) {
-	db, _ := gorm.Open("sqlite3", ":memory:")
+	db, _ := createInMemoryDb()
 	defer func() { _ = db.Close() }()
-	db.AutoMigrate(&seriesEntity{})
+
 	service := NewSeriesService(db)
 
 	testify := assert.New(t)
@@ -20,7 +18,7 @@ func TestSeriesServiceImpl_CRUD(t *testing.T) {
 	written := make([]domain.Series, 0, 10)
 	for i := 0; i < 10; i++ {
 		series := domain.Series{Name: fmt.Sprintf("Series %d", i)}
-		err := service.Create(&series)
+		err := service.Save(&series)
 		written = append(written, series)
 		testify.NoError(err, "error while saving series %v", series)
 	}
@@ -36,9 +34,8 @@ func TestSeriesServiceImpl_CRUD(t *testing.T) {
 }
 
 func TestSeriesServiceImpl_DeleteZero(t *testing.T) {
-	db, _ := gorm.Open("sqlite3", ":memory:")
+	db, _ := createInMemoryDb()
 	defer func() { _ = db.Close() }()
-	db.AutoMigrate(&seriesEntity{})
 
 	service := NewSeriesService(db)
 

@@ -14,9 +14,11 @@ type MeterReading struct {
 }
 
 type PricingPlan struct {
-	Id        *int
+	Id        uint
+	Name      string
 	BasePrice float64
 	UnitPrice float64
 	ValidFrom *time.Time
 	ValidTo   *time.Time
+	Series    Series
 }

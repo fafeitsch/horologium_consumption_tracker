@@ -7,7 +7,7 @@ import (
 )
 
 type SeriesService interface {
-	Create(series *domain.Series) error
+	Save(series *domain.Series) error
 	Delete(id uint) error
 	QueryAll() ([]domain.Series, error)
 }
@@ -20,7 +20,7 @@ type SeriesServiceImpl struct {
 	db *gorm.DB
 }
 
-func (s *SeriesServiceImpl) Create(series *domain.Series) error {
+func (s *SeriesServiceImpl) Save(series *domain.Series) error {
 	entity := seriesEntity{
 		Name: series.Name,
 	}
