@@ -17,7 +17,7 @@ func createInMemoryDb() (*gorm.DB, error) {
 		return nil, err
 	}
 	db = db.Set("gorm:auto_preload", true)
-	err = db.AutoMigrate(&seriesEntity{}, &pricingPlanEntity{}).
+	err = db.AutoMigrate(&seriesEntity{}, &pricingPlanEntity{}, &meterReadingEntity{}).
 		Exec("PRAGMA foreign_keys = ON").
 		Error
 	return db, err

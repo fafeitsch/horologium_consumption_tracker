@@ -25,7 +25,7 @@ func (s *SeriesServiceImpl) Save(series *domain.Series) error {
 		Name: series.Name,
 	}
 	err := s.db.Save(&entity).Error
-	series.Id = entity.ID
+	series.Id = entity.Id
 	return err
 }
 
@@ -34,7 +34,7 @@ func (s *SeriesServiceImpl) Delete(id uint) error {
 		return errors.New("cannot delete entity with id 0")
 	}
 	entity := seriesEntity{
-		Model: gorm.Model{ID: id},
+		Id: id,
 	}
 	return s.db.Delete(&entity).Error
 }
@@ -47,7 +47,7 @@ func (s *SeriesServiceImpl) QueryAll() ([]domain.Series, error) {
 	}
 	result := make([]domain.Series, 0, len(resultSet))
 	for _, row := range resultSet {
-		result = append(result, domain.Series{Id: row.ID, Name: row.Name})
+		result = append(result, domain.Series{Id: row.Id, Name: row.Name})
 	}
 	return result, nil
 }

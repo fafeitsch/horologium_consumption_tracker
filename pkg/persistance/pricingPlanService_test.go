@@ -12,8 +12,8 @@ func TestNewPricingPlanService_CRUD(t *testing.T) {
 	db, _ := createInMemoryDb()
 	defer func() { _ = db.Close() }()
 
-	powerSeries := domain.Series{Name: "Power"}
-	waterSeries := domain.Series{Name: "Water"}
+	powerSeries := &domain.Series{Name: "Power"}
+	waterSeries := &domain.Series{Name: "Water"}
 
 	time1, _ := time.Parse(time.RFC3339, "2018-01-01")
 	time2, _ := time.Parse(time.RFC3339, "2018-12-31")

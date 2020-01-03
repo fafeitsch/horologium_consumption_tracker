@@ -23,7 +23,7 @@ type PricingPlanServiceImpl struct {
 func (p *PricingPlanServiceImpl) Save(plan *domain.PricingPlan) error {
 	entity := toPricingPlanEntity(*plan)
 	err := p.db.Save(&entity).Error
-	plan.Id = entity.ID
+	plan.Id = entity.Id
 	plan.Series.Id = entity.SeriesID
 	return err
 }
@@ -33,7 +33,7 @@ func (p *PricingPlanServiceImpl) Delete(id uint) error {
 		return errors.New("cannot delete entity with id 0")
 	}
 	entity := pricingPlanEntity{
-		Model: gorm.Model{ID: id},
+		Id: id,
 	}
 	return p.db.Delete(&entity).Error
 }

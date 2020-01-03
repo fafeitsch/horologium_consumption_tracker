@@ -8,9 +8,10 @@ type Series struct {
 }
 
 type MeterReading struct {
-	Id    *int
-	Count float64
-	Date  time.Time
+	Id     uint
+	Count  float64
+	Date   time.Time
+	Series *Series
 }
 
 type PricingPlan struct {
@@ -20,5 +21,5 @@ type PricingPlan struct {
 	UnitPrice float64
 	ValidFrom *time.Time
 	ValidTo   *time.Time
-	Series    Series
+	Series    *Series
 }
