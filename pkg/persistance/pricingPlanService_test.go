@@ -9,7 +9,7 @@ import (
 )
 
 func TestNewPricingPlanService_CRUD(t *testing.T) {
-	db, _ := createInMemoryDb()
+	db, _ := CreateInMemoryDb()
 	defer func() { _ = db.Close() }()
 
 	powerSeries := &domain.Series{Name: "Power"}
@@ -64,7 +64,7 @@ func TestNewPricingPlanService_CRUD(t *testing.T) {
 }
 
 func TestPricingPlanServiceImpl_DeleteZero(t *testing.T) {
-	db, _ := createInMemoryDb()
+	db, _ := CreateInMemoryDb()
 	defer func() { _ = db.Close() }()
 
 	service := NewPricingPlanService(db)

@@ -9,18 +9,19 @@ import (
 type SeriesService interface {
 	Save(series *domain.Series) error
 	Delete(id uint) error
+	QueryById(id uint) (*domain.Series, error)
 	QueryAll() ([]domain.Series, error)
 }
 
 func NewSeriesService(db *gorm.DB) SeriesService {
-	return &SeriesServiceImpl{db: db}
+	return &seriesServiceImpl{db: db}
 }
 
-type SeriesServiceImpl struct {
+type seriesServiceImpl struct {
 	db *gorm.DB
 }
 
-func (s *SeriesServiceImpl) Save(series *domain.Series) error {
+func (s *seriesServiceImpl) Save(series *domain.Series) error {
 	entity := seriesEntity{
 		Name: series.Name,
 	}
@@ -29,7 +30,7 @@ func (s *SeriesServiceImpl) Save(series *domain.Series) error {
 	return err
 }
 
-func (s *SeriesServiceImpl) Delete(id uint) error {
+func (s *seriesServiceImpl) Delete(id uint) error {
 	if id == 0 {
 		return errors.New("cannot delete entity with id 0")
 	}
@@ -39,7 +40,14 @@ func (s *SeriesServiceImpl) Delete(id uint) error {
 	return s.db.Delete(&entity).Error
 }
 
-func (s *SeriesServiceImpl) QueryAll() ([]domain.Series, error) {
+func (s *seriesServiceImpl) QueryById(id uint) (*domain.Series, error) {
+	entity := &seriesEntity{}
+	err := s.db.First(&entity, id).Error
+	series := entity.toDomainSeries()
+	return &series, err
+}
+
+func (s *seriesServiceImpl) QueryAll() ([]domain.Series, error) {
 	resultSet := make([]seriesEntity, 0, 0)
 	err := s.db.Find(&resultSet).Error
 	if err != nil {

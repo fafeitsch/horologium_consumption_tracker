@@ -9,7 +9,7 @@ import (
 )
 
 func TestMeterReadingServiceImpl_CRUD(t *testing.T) {
-	db, _ := createInMemoryDb()
+	db, _ := CreateInMemoryDb()
 	defer func() { _ = db.Close() }()
 
 	powerSeries := &domain.Series{Name: "Power"}
@@ -63,7 +63,7 @@ func TestMeterReadingServiceImpl_CRUD(t *testing.T) {
 }
 
 func TestMeterReadingServiceImpl_DeleteZero(t *testing.T) {
-	db, _ := createInMemoryDb()
+	db, _ := CreateInMemoryDb()
 	defer func() { _ = db.Close() }()
 
 	service := NewMeterReadingService(db)

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func createInMemoryDb() (*gorm.DB, error) {
+func CreateInMemoryDb() (*gorm.DB, error) {
 	originalTableNameHandler := gorm.DefaultTableNameHandler
 	gorm.DefaultTableNameHandler = func(db *gorm.DB, defaultTableName string) string {
 		defaultTableName = strings.Replace(defaultTableName, "_entities", "", -1)
