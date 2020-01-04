@@ -1,0 +1,18 @@
+type Series {
+  id: ID!
+  name: String!
+}
+
+type Query {
+  allSeries: [Series!]!
+  series(id: Int!): Series
+}
+
+input NewSeriesInput {
+  name: String!
+}
+
+type Mutation {
+  createSeries(series: NewSeriesInput!): Series!
+  deleteSeries(id: Int!): Int!
+}
