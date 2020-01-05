@@ -18,7 +18,6 @@ export class DashboardComponent implements OnInit {
   ngOnInit() {
     this.seriesService.getAllSeries().subscribe(resp => {
       this.series = resp;
-      console.log(this.series);
     }, (error) => {
       this.router.navigate(['login']).then();
     });

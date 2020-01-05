@@ -11,7 +11,7 @@ export class Series {
     this._id = value;
   }
 
-  get named(): string {
+  get name(): string {
     return this._name;
   }
 
