@@ -1,0 +1,17 @@
+<div class="main-div">
+  <mat-card class="z-depth center" flex="50">
+    <mat-card-title>Login</mat-card-title>
+    <mat-card-content>
+      <mat-form-field>
+        <input matInput placeholder="User Name" #userNameInput>
+      </mat-form-field>
+
+      <mat-form-field>
+        <input matInput type="password" placeholder="Password" #passwordInput>
+      </mat-form-field>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button color="primary" style="float: right" (click)="attemptLogin(userNameInput.value, passwordInput.value)">Login</button>
+    </mat-card-actions>
+  </mat-card>
+</div>

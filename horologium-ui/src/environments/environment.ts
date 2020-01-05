@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  graphQlServer: 'http://127.0.0.1:9551/api'
+  graphQlServer: 'http://127.0.0.1:9551/api',
+  loginServer: 'http://127.0.0.1:9551/login'
 };
 
 /*

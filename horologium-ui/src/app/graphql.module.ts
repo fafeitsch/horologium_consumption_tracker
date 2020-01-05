@@ -17,7 +17,7 @@ export function createApollo(httpLink: HttpLink) {
   }));
 
   // Get the authentication token from local storage if it exists
-  const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VyTmFtZSI6ImpvaG4ifQ.YAhFVqwtUicCpXp0IUYYx04Lv9Nt9t39UoufA4-Ic_E';
+  const token = localStorage.getItem('token'); // 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VyTmFtZSI6ImpvaG4ifQ.YAhFVqwtUicCpXp0IUYYx04Lv9Nt9t39UoufA4-Ic_E';
   const auth = setContext((operation, context) => ({
     headers: {
       Authorization: `Bearer ${token}`

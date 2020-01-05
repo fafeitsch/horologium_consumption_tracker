@@ -1,0 +1,7 @@
+<mat-toolbar>
+  <span>Horologium</span>
+  <span class="example-fill-remaining-space"></span>
+
+  <span class="small-text">{{loggedInAs}}</span>
+  <span *ngIf="loggedIn" class="small-text"><button mat-button color="warn" (click)="loginService.logout()">Logout</button></span>
+</mat-toolbar>
