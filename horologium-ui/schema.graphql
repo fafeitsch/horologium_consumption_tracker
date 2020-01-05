@@ -1,0 +1,25 @@
+# This file was generated based on ".graphqlconfig". Do not edit manually.
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Mutation {
+  createSeries(series: NewSeriesInput!): Series!
+  deleteSeries(id: Int!): Int!
+}
+
+type Query {
+  allSeries: [Series!]!
+  series(id: Int!): Series
+}
+
+type Series {
+  id: ID!
+  name: String!
+}
+
+input NewSeriesInput {
+  name: String!
+}
