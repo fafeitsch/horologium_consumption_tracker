@@ -20,6 +20,7 @@ import {LoginComponent} from '../login/login.component';
 import {DashboardComponent} from '../dashboard/dashboard.component';
 import { SeriesListComponent } from '../series/list/series-list.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { PricingPlanTableComponent } from '../plan/pricing-plan-table/pricing-plan-table.component';
 
 @NgModule({
   declarations: [
@@ -28,6 +29,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
     LoginComponent,
     DashboardComponent,
     SeriesListComponent,
+    PricingPlanTableComponent,
   ],
   imports: [
     BrowserModule,

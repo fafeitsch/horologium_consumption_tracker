@@ -12,6 +12,7 @@ export class DashboardComponent implements OnInit {
 
   // noinspection JSMismatchedCollectionQueryUpdate
   private series: Series[];
+  private selectedSeries: Series;
 
   constructor(private seriesService: SeriesService, private router: Router) { }
 
@@ -21,5 +22,10 @@ export class DashboardComponent implements OnInit {
     }, (error) => {
       this.router.navigate(['login']).then();
     });
+  }
+
+  private selectedSeriesChanged(series: Series): void {
+    this.selectedSeries = series;
+    console.log(this.selectedSeries);
   }
 }

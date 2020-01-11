@@ -6,12 +6,24 @@ schema {
 }
 
 type Mutation {
+  createPricingPlan(plan: NewPricingPlanInput): PricingPlan!
   createSeries(series: NewSeriesInput!): Series!
   deleteSeries(id: Int!): Int!
 }
 
+type PricingPlan {
+  Name: String!
+  basePrice: Float!
+  id: ID!
+  seriesId: Int!
+  unitPrice: Float!
+  validFrom: Date!
+  validTo: Date
+}
+
 type Query {
   allSeries: [Series!]!
+  pricingPlans(seriesId: Int!): [PricingPlan!]!
   series(id: Int!): Series
 }
 
@@ -20,6 +32,18 @@ type Series {
   name: String!
 }
 
+input NewPricingPlanInput {
+  Name: String!
+  SeriesId: Int!
+  basePrice: Float!
+  unitPrice: Float!
+  validFrom: Date!
+  validTo: Date
+}
+
 input NewSeriesInput {
   name: String!
 }
+
+
+scalar Date
