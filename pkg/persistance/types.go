@@ -5,6 +5,8 @@ import (
 	"time"
 )
 
+const DateFormat = "2006-01-02"
+
 type seriesEntity struct {
 	Id   uint `gorm:"primary_key"`
 	Name string

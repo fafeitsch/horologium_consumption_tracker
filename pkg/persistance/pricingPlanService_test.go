@@ -56,6 +56,11 @@ func TestNewPricingPlanService_CRUD(t *testing.T) {
 	require.NoError(t, err, "no error while querying expected.")
 	assert.Equal(t, plans, got, "actual and wanted pricing plans differ")
 
+	got, err = service.QueryForSeries(waterSeries.Id)
+	require.NoError(t, err, "no error while querying expected")
+	assert.Equal(t, 1, len(got), "number of got plans incorrect")
+	assert.Equal(t, waterPlan1, got[0], "got pricing plan not correct")
+
 	err = service.Delete(plans[1].Id)
 	require.NoError(t, err, "no error while deleting expected")
 	got, err = service.QueryAll()

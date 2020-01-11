@@ -3,16 +3,39 @@ type Series {
   name: String!
 }
 
+scalar Date
+
+type PricingPlan {
+  id: ID!
+  Name: String!
+  basePrice: Float!
+  unitPrice: Float!
+  validFrom: Date!
+  validTo: Date
+  seriesId: Int!
+}
+
 type Query {
   allSeries: [Series!]!
   series(id: Int!): Series
+  pricingPlans(seriesId: Int!): [PricingPlan!]!
 }
 
 input NewSeriesInput {
   name: String!
 }
 
+input NewPricingPlanInput{
+  Name: String!
+  basePrice: Float!
+  unitPrice: Float!
+  validFrom: Date!
+  validTo: Date
+  SeriesId: Int!
+}
+
 type Mutation {
   createSeries(series: NewSeriesInput!): Series!
   deleteSeries(id: Int!): Int!
+  createPricingPlan(plan: NewPricingPlanInput): PricingPlan!
 }

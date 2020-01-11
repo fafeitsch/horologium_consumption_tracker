@@ -21,7 +21,8 @@ func main() {
 	http.Handle("/", handler.Playground("GraphQL playground", "/query"))
 	db, _ := orm.CreateInMemoryDb()
 	seriesService := orm.NewSeriesService(db)
-	resolver := gql.NewResolver(seriesService)
+	planService := orm.NewPricingPlanService(db)
+	resolver := gql.NewResolver(seriesService, planService)
 	http.Handle("/query", handler.GraphQL(gql.NewExecutableSchema(gql.Config{Resolvers: resolver})))
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)

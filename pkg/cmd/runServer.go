@@ -27,7 +27,8 @@ func main() {
 			log.Fatalf("could not connect to database: %v", err)
 		}
 		seriesService := orm.NewSeriesService(db)
-		resolver := gql.NewResolver(seriesService)
+		planService := orm.NewPricingPlanService(db)
+		resolver := gql.NewResolver(seriesService, planService)
 		apiHandler := handler.GraphQL(gql.NewExecutableSchema(gql.Config{Resolvers: resolver})).ServeHTTP
 		server, e := http.NewServer(config, apiHandler)
 		if e != nil {

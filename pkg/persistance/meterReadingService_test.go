@@ -15,9 +15,9 @@ func TestMeterReadingServiceImpl_CRUD(t *testing.T) {
 	powerSeries := &domain.Series{Name: "Power"}
 	waterSeries := &domain.Series{Name: "Water"}
 
-	time1, _ := time.Parse(time.RFC3339, "2018-01-31")
-	time2, _ := time.Parse(time.RFC3339, "2018-02-28")
-	time3, _ := time.Parse(time.RFC3339, "2018-03-31")
+	time1, _ := time.Parse(DateFormat, "2018-01-31")
+	time2, _ := time.Parse(DateFormat, "2018-02-28")
+	time3, _ := time.Parse(DateFormat, "2018-03-31")
 	meter1 := domain.MeterReading{
 		Count:  1000,
 		Date:   time1,

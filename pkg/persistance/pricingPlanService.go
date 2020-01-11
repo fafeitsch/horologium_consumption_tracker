@@ -10,6 +10,7 @@ type PricingPlanService interface {
 	Save(*domain.PricingPlan) error
 	Delete(uint) error
 	QueryAll() ([]domain.PricingPlan, error)
+	QueryForSeries(id uint) ([]domain.PricingPlan, error)
 }
 
 func NewPricingPlanService(db *gorm.DB) PricingPlanService {
@@ -41,6 +42,19 @@ func (p *PricingPlanServiceImpl) Delete(id uint) error {
 func (p *PricingPlanServiceImpl) QueryAll() ([]domain.PricingPlan, error) {
 	resultSet := make([]pricingPlanEntity, 0, 0)
 	err := p.db.Find(&resultSet).Error
+	result := make([]domain.PricingPlan, 0, len(resultSet))
+	for _, res := range resultSet {
+		result = append(result, res.toDomainPricingPlan())
+	}
+	return result, err
+}
+
+func (p *PricingPlanServiceImpl) QueryForSeries(seriesId uint) ([]domain.PricingPlan, error) {
+	resultSet := make([]pricingPlanEntity, 0, 0)
+	series := seriesEntity{
+		Id: seriesId,
+	}
+	err := p.db.Model(series).Related(&resultSet, "seriesID").Error
 	result := make([]domain.PricingPlan, 0, len(resultSet))
 	for _, res := range resultSet {
 		result = append(result, res.toDomainPricingPlan())
