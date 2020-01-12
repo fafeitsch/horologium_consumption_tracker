@@ -13,7 +13,7 @@ import {
   MatFormFieldModule,
   MatGridListModule,
   MatInputModule,
-  MatListModule, MatRadioModule,
+  MatListModule, MatRadioModule, MatTableModule,
   MatToolbarModule
 } from '@angular/material';
 import {LoginComponent} from '../login/login.component';
@@ -46,6 +46,7 @@ import { PricingPlanTableComponent } from '../plan/pricing-plan-table/pricing-pl
     MatButtonModule,
     MatListModule,
     MatRadioModule,
+    MatTableModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

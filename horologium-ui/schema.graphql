@@ -12,9 +12,9 @@ type Mutation {
 }
 
 type PricingPlan {
-  Name: String!
   basePrice: Float!
   id: ID!
+  name: String!
   seriesId: Int!
   unitPrice: Float!
   validFrom: Date!
@@ -33,9 +33,9 @@ type Series {
 }
 
 input NewPricingPlanInput {
-  Name: String!
   SeriesId: Int!
   basePrice: Float!
+  name: String!
   unitPrice: Float!
   validFrom: Date!
   validTo: Date

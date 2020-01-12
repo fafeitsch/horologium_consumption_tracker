@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {Series} from '../series/series';
 import {SeriesService} from '../series/series.service';
+import {PricingPlanService} from '../plan/pricing-plan.service';
+import {Plan} from '../plan/plan';
 
 @Component({
   selector: 'app-dashboard',
@@ -13,8 +15,10 @@ export class DashboardComponent implements OnInit {
   // noinspection JSMismatchedCollectionQueryUpdate
   private series: Series[];
   private selectedSeries: Series;
+  private pricingPlans: Plan[];
 
-  constructor(private seriesService: SeriesService, private router: Router) { }
+  constructor(private seriesService: SeriesService, private planService: PricingPlanService, private router: Router) {
+  }
 
   ngOnInit() {
     this.seriesService.getAllSeries().subscribe(resp => {
@@ -26,6 +30,11 @@ export class DashboardComponent implements OnInit {
 
   private selectedSeriesChanged(series: Series): void {
     this.selectedSeries = series;
-    console.log(this.selectedSeries);
+    this.planService.queryPricingPlans(series.id).subscribe(resp => {
+      this.pricingPlans = resp;
+      console.log(this.pricingPlans)
+    }, (error) => {
+      this.router.navigate(['login']).then();
+    });
   }
 }
