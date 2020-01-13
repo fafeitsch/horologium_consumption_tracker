@@ -21,6 +21,7 @@ import {DashboardComponent} from '../dashboard/dashboard.component';
 import { SeriesListComponent } from '../series/list/series-list.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { PricingPlanTableComponent } from '../plan/pricing-plan-table/pricing-plan-table.component';
+import { PricingPlanManagerComponent } from '../plan/pricing-plan-manager/pricing-plan-manager.component';
 
 @NgModule({
   declarations: [
@@ -30,6 +31,7 @@ import { PricingPlanTableComponent } from '../plan/pricing-plan-table/pricing-pl
     DashboardComponent,
     SeriesListComponent,
     PricingPlanTableComponent,
+    PricingPlanManagerComponent,
   ],
   imports: [
     BrowserModule,
