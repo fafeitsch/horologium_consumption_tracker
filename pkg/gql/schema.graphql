@@ -7,7 +7,7 @@ scalar Date
 
 type PricingPlan {
   id: ID!
-  Name: String!
+  name: String!
   basePrice: Float!
   unitPrice: Float!
   validFrom: Date!
@@ -26,7 +26,7 @@ input NewSeriesInput {
 }
 
 input NewPricingPlanInput{
-  Name: String!
+  name: String!
   basePrice: Float!
   unitPrice: Float!
   validFrom: Date!
