@@ -1,2 +1,15 @@
-<app-series-list [series]="series" (selectionChanged)="selectedSeriesChanged($event)"></app-series-list>
-<app-pricing-plan-table [pricingPlans]="pricingPlans"></app-pricing-plan-table>
+<mat-sidenav-container>
+  <mat-sidenav mode="side" opened>
+    <app-series-list [series]="series" (selectionChanged)="selectedSeriesChanged($event)"></app-series-list>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <mat-tab-group>
+      <mat-tab label="Plans">
+        <app-pricing-plan-table [pricingPlans]="pricingPlans"></app-pricing-plan-table>
+      </mat-tab>
+      <mat-tab label="Readings">
+
+      </mat-tab>
+    </mat-tab-group>
+  </mat-sidenav-content>
+</mat-sidenav-container>

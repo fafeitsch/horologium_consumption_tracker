@@ -1,5 +1,4 @@
 <div class="container">
-  <h2 class="mat-h2">Series</h2>
   <mat-list>
     <mat-list-item *ngFor="let s of this.series" dense>
       <mat-radio-button (change)="seriesSelectionChanged($event.value)" [value]="s" color="warn">

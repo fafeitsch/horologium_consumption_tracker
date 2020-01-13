@@ -24,6 +24,7 @@ export class DashboardComponent implements OnInit {
     this.seriesService.getAllSeries().subscribe(resp => {
       this.series = resp;
     }, (error) => {
+      console.log(error)
       this.router.navigate(['login']).then();
     });
   }
@@ -32,8 +33,8 @@ export class DashboardComponent implements OnInit {
     this.selectedSeries = series;
     this.planService.queryPricingPlans(series.id).subscribe(resp => {
       this.pricingPlans = resp;
-      console.log(this.pricingPlans)
     }, (error) => {
+      console.log(error);
       this.router.navigate(['login']).then();
     });
   }
