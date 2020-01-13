@@ -9,11 +9,11 @@ import {HeaderComponent} from '../header/header.component';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {
   MatButtonModule,
-  MatCardModule,
+  MatCardModule, MatDatepickerModule,
   MatFormFieldModule,
   MatGridListModule,
   MatInputModule,
-  MatListModule, MatRadioModule, MatSidenavModule, MatTableModule, MatTabsModule,
+  MatListModule, MatNativeDateModule, MatRadioModule, MatSidenavModule, MatTableModule, MatTabsModule,
   MatToolbarModule
 } from '@angular/material';
 import {LoginComponent} from '../login/login.component';
@@ -22,6 +22,7 @@ import { SeriesListComponent } from '../series/list/series-list.component';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { PricingPlanTableComponent } from '../plan/pricing-plan-table/pricing-plan-table.component';
 import { PricingPlanManagerComponent } from '../plan/pricing-plan-manager/pricing-plan-manager.component';
+import { PricingPlanEditorComponent } from '../plan/pricing-plan-editor/pricing-plan-editor.component';
 
 @NgModule({
   declarations: [
@@ -32,6 +33,7 @@ import { PricingPlanManagerComponent } from '../plan/pricing-plan-manager/pricin
     SeriesListComponent,
     PricingPlanTableComponent,
     PricingPlanManagerComponent,
+    PricingPlanEditorComponent,
   ],
   imports: [
     BrowserModule,
@@ -51,6 +53,11 @@ import { PricingPlanManagerComponent } from '../plan/pricing-plan-manager/pricin
     MatTableModule,
     MatSidenavModule,
     MatTabsModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+  ],
+  entryComponents: [
+    PricingPlanEditorComponent
   ],
   providers: [],
   bootstrap: [AppComponent]

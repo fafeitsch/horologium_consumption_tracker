@@ -1,0 +1,36 @@
+<form>
+  <h3>Pricing Plan Editor</h3>
+  <div class="form-row">
+    <mat-form-field class="full-width">
+      <input matInput placeholder="Plan Name" required #planName/>
+    </mat-form-field>
+  </div>
+  <div class="form-row" >
+    <mat-form-field class="full-width">
+      <input matInput placeholder="Base Price" type="number" step="0.01" required #basePrice/>
+    </mat-form-field>
+  </div>
+  <div class="form-row">
+    <mat-form-field class="full-width">
+      <input matInput placeholder="Unit Price" type="number" step="0.01" required #unitPrice/>
+    </mat-form-field>
+  </div>
+  <div class="form-row">
+    <mat-form-field class="full-width">
+      <input matInput [matDatepicker]="validFromPicker" placeholder="Valid From" required/>
+      <mat-datepicker-toggle matSuffix [for]="validFromPicker"></mat-datepicker-toggle>
+      <mat-datepicker #validFromPicker></mat-datepicker>
+    </mat-form-field>
+  </div>
+  <div class="form-row">
+    <mat-form-field class="full-width">
+      <input matInput [matDatepicker]="validToPicker" placeholder="Valid To"/>
+      <mat-datepicker-toggle matSuffix [for]="validToPicker"></mat-datepicker-toggle>
+      <mat-datepicker #validToPicker></mat-datepicker>
+    </mat-form-field>
+  </div>
+  <div class="form-row align-right">
+    <button mat-button color="primary">Save</button>
+    <button mat-button color="primary">Cancel</button>
+  </div>
+</form>
