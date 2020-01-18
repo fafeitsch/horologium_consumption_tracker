@@ -1,36 +1,42 @@
-<form>
-  <h3>Pricing Plan Editor</h3>
-  <div class="form-row">
-    <mat-form-field class="full-width">
-      <input matInput placeholder="Plan Name" required #planName/>
-    </mat-form-field>
-  </div>
-  <div class="form-row" >
-    <mat-form-field class="full-width">
-      <input matInput placeholder="Base Price" type="number" step="0.01" required #basePrice/>
-    </mat-form-field>
-  </div>
-  <div class="form-row">
-    <mat-form-field class="full-width">
-      <input matInput placeholder="Unit Price" type="number" step="0.01" required #unitPrice/>
-    </mat-form-field>
-  </div>
-  <div class="form-row">
-    <mat-form-field class="full-width">
-      <input matInput [matDatepicker]="validFromPicker" placeholder="Valid From" required/>
-      <mat-datepicker-toggle matSuffix [for]="validFromPicker"></mat-datepicker-toggle>
-      <mat-datepicker #validFromPicker></mat-datepicker>
-    </mat-form-field>
-  </div>
-  <div class="form-row">
-    <mat-form-field class="full-width">
-      <input matInput [matDatepicker]="validToPicker" placeholder="Valid To"/>
-      <mat-datepicker-toggle matSuffix [for]="validToPicker"></mat-datepicker-toggle>
-      <mat-datepicker #validToPicker></mat-datepicker>
-    </mat-form-field>
-  </div>
-  <div class="form-row align-right">
-    <button mat-button color="primary">Save</button>
-    <button mat-button color="primary">Cancel</button>
-  </div>
-</form>
+<h2 mat-dialog-title>Pricing Plan Editor</h2>
+<mat-dialog-content>
+  <form #myForm="ngForm">
+    <div class="form-row">
+      <mat-form-field class="full-width">
+        <input matInput placeholder="Plan Name" required [(ngModel)]="planName" name="planName" ngDefaultControl/>
+      </mat-form-field>
+    </div>
+    <div class="form-row">
+      <mat-form-field class="full-width">
+        <input matInput placeholder="Base Price" type="number" step="0.01" required [(ngModel)]="basePrice" name="basePrice" ngDefaultControl/>
+      </mat-form-field>
+    </div>
+    <div class="form-row">
+      <mat-form-field class="full-width">
+        <input matInput placeholder="Unit Price" type="number" step="0.01" required [(ngModel)]="unitPrice" name="unitPrice" ngDefaultControl/>
+      </mat-form-field>
+    </div>
+    <div class="form-row">
+      <mat-form-field class="full-width">
+        <input matInput [matDatepicker]="validFromPicker" placeholder="Valid From" [(ngModel)]="validFrom" name="validFrom" ngDefaultControl required/>
+        <mat-datepicker-toggle matSuffix [for]="validFromPicker"></mat-datepicker-toggle>
+        <mat-datepicker #validFromPicker [(ngModel)]="validFrom" name="validFrom" ngDefaultControl></mat-datepicker>
+      </mat-form-field>
+    </div>
+    <div class="form-row">
+      <mat-form-field class="full-width">
+        <input matInput [matDatepicker]="validToPicker" placeholder="Valid To" [(ngModel)]="validTo" name="validTo" ngDefaultControl/>
+        <mat-datepicker-toggle matSuffix [for]="validToPicker"></mat-datepicker-toggle>
+        <mat-datepicker #validToPicker></mat-datepicker>
+      </mat-form-field>
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-card *ngIf="validityResult">
+  <mat-card-title>Plan not acceptable!</mat-card-title>
+  <mat-card-content>{{validityResult}}</mat-card-content>
+</mat-card>
+<mat-dialog-actions class="form-row align-right">
+  <button mat-button (click)="saveClicked()" color="primary" [disabled]="!myForm.form.valid">Save</button>
+  <button mat-button [mat-dialog-close]="false" color="primary">Cancel</button>
+</mat-dialog-actions>

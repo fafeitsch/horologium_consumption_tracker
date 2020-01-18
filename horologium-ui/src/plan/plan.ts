@@ -1,11 +1,11 @@
 export class Plan {
   private _id: number;
+  private _seriesId: number;
   private _name: string;
   private _basePrice: number;
   private _unitPrice: number;
   private _validFrom: Date;
   private _validTo: Date;
-
 
   get id(): number {
     return this._id;
@@ -13,6 +13,14 @@ export class Plan {
 
   set id(value: number) {
     this._id = value;
+  }
+
+  get seriesId(): number {
+    return this._seriesId;
+  }
+
+  set seriesId(value: number) {
+    this._seriesId = value;
   }
 
   get name(): string {
