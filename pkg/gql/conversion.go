@@ -3,7 +3,6 @@ package gql
 import (
 	"github.com/fafeitsch/Horologium/pkg/domain"
 	orm "github.com/fafeitsch/Horologium/pkg/persistance"
-	"strconv"
 )
 
 func toQLSeries(series *domain.Series) *Series {
@@ -11,7 +10,7 @@ func toQLSeries(series *domain.Series) *Series {
 		return nil
 	}
 	return &Series{
-		ID:   strconv.Itoa(int(series.Id)),
+		ID:   int(series.Id),
 		Name: series.Name,
 	}
 }
@@ -27,11 +26,12 @@ func toQLPricingPlan(plan *domain.PricingPlan) *PricingPlan {
 		end = &tmp
 	}
 	return &PricingPlan{
-		ID:        strconv.Itoa(int(plan.Id)),
+		ID:        int(plan.Id),
 		Name:      plan.Name,
 		BasePrice: plan.BasePrice,
 		UnitPrice: plan.UnitPrice,
 		ValidFrom: start,
 		ValidTo:   end,
+		SeriesID:  int(plan.Series.Id),
 	}
 }

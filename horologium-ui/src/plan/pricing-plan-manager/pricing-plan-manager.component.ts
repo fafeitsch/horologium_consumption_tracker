@@ -30,9 +30,5 @@ export class PricingPlanManagerComponent implements OnInit {
         savePressed: this.savePlan
       },
     });
-    dialogRef.beforeClosed().subscribe((result: boolean) => {
-      console.log(result);
-      console.log(dialogRef.componentInstance.getPlan());
-    });
   }
 }

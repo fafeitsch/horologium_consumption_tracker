@@ -1,12 +1,12 @@
 type Series {
-  id: ID!
+  id: Int!
   name: String!
 }
 
 scalar Date
 
 type PricingPlan {
-  id: ID!
+  id: Int!
   name: String!
   basePrice: Float!
   unitPrice: Float!
@@ -31,7 +31,7 @@ input NewPricingPlanInput{
   unitPrice: Float!
   validFrom: Date!
   validTo: Date
-  SeriesId: Int!
+  seriesId: Int!
 }
 
 type Mutation {
