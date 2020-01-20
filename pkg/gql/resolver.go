@@ -58,7 +58,7 @@ func (r *mutationResolver) CreatePricingPlan(ctx context.Context, plan *NewPrici
 	if err != nil {
 		return nil, fmt.Errorf("could not parse the validFrom date as RFC3339: %v", err)
 	}
-	end := new(time.Time)
+	var end *time.Time
 	if plan.ValidTo != nil {
 		tmp, err := time.Parse(orm.DateFormat, *plan.ValidTo)
 		if err != nil {

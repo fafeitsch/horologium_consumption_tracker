@@ -8,7 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	"strconv"
 	"testing"
 	"time"
 )
@@ -23,7 +22,7 @@ func TestMutationResolver_CreateSeries(t *testing.T) {
 	got, err := resolver.Mutation().CreateSeries(context.Background(), newSeries)
 	assert.NoError(t, err, "no error expected")
 	assert.Equal(t, got.Name, newSeries.Name, "the names should be equal")
-	assert.Equal(t, strconv.Itoa(int(series.Id)), got.ID, "an ID must be given")
+	assert.Equal(t, int(series.Id), got.ID, "an ID must be given")
 }
 
 func TestMutationResolver_DeleteSeries(t *testing.T) {
@@ -43,15 +42,24 @@ func TestMutationResolver_CreatePricingPlan(t *testing.T) {
 	seriesService.On("QueryById", uint(27)).Return(&series, nil)
 	validFrom1, _ := time.Parse(orm.DateFormat, "2018-01-01")
 	validTo1, _ := time.Parse(orm.DateFormat, "2018-12-31")
-	plan := domain.PricingPlan{Id: 677, Name: "Power 2020", BasePrice: 40, UnitPrice: 23, ValidFrom: &validFrom1, ValidTo: &validTo1, Series: &series}
 	planService.On("Save").Return(677, nil)
 	resolver := NewResolver(seriesService, planService, readingService)
-
 	validToStr := validTo1.Format(orm.DateFormat)
-	newPlan := NewPricingPlanInput{Name: "Power 2020", BasePrice: 40, UnitPrice: 23, ValidFrom: validFrom1.Format(orm.DateFormat), ValidTo: &validToStr, SeriesID: 27}
-	got, err := resolver.Mutation().CreatePricingPlan(context.Background(), &newPlan)
-	assert.NoError(t, err, "no error expected")
-	comparePlans(t, plan, got, "created plan")
+
+	t.Run("with both dates", func(t *testing.T) {
+		newPlan := NewPricingPlanInput{Name: "Power 2020", BasePrice: 40, UnitPrice: 23, ValidFrom: validFrom1.Format(orm.DateFormat), ValidTo: &validToStr, SeriesID: 27}
+		got, err := resolver.Mutation().CreatePricingPlan(context.Background(), &newPlan)
+		assert.NoError(t, err, "no error expected")
+		plan := domain.PricingPlan{Id: 677, Name: "Power 2020", BasePrice: 40, UnitPrice: 23, ValidFrom: &validFrom1, ValidTo: &validTo1, Series: &series}
+		comparePlans(t, plan, got, "created plan")
+	})
+	t.Run("with only start date", func(t *testing.T) {
+		newPlan := NewPricingPlanInput{Name: "Power 2020", BasePrice: 40, UnitPrice: 23, ValidFrom: validFrom1.Format(orm.DateFormat), ValidTo: nil, SeriesID: 27}
+		got, err := resolver.Mutation().CreatePricingPlan(context.Background(), &newPlan)
+		assert.NoError(t, err, "no error expected")
+		plan := domain.PricingPlan{Id: 677, Name: "Power 2020", BasePrice: 40, UnitPrice: 23, ValidFrom: &validFrom1, ValidTo: nil, Series: &series}
+		comparePlans(t, plan, got, "created plan")
+	})
 }
 
 func Test_mutationResolver_CreateMeterReading(t *testing.T) {
@@ -93,7 +101,7 @@ func TestQueryResolver_Series(t *testing.T) {
 }
 
 func compareSeries(t *testing.T, s domain.Series, got *Series, msg string) {
-	assert.Equal(t, strconv.Itoa(int(s.Id)), got.ID, "id of %d")
+	assert.Equal(t, int(s.Id), got.ID, "id of %d")
 	assert.Equal(t, s.Name, got.Name, "name of %s", msg)
 }
 
@@ -133,7 +141,7 @@ func TestQueryResolver_PricingPlans(t *testing.T) {
 }
 
 func comparePlans(t *testing.T, p domain.PricingPlan, got *PricingPlan, msg string) {
-	assert.Equal(t, strconv.Itoa(int(p.Id)), got.ID, "id of %s", msg)
+	assert.Equal(t, int(p.Id), got.ID, "id of %s", msg)
 	assert.Equal(t, p.Name, got.Name, "name of %s", msg)
 	assert.Equal(t, p.BasePrice, got.BasePrice, "base price of %s", msg)
 	assert.Equal(t, p.UnitPrice, got.UnitPrice, "unit price of %s", msg)

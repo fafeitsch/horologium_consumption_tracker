@@ -28,7 +28,8 @@ func main() {
 		}
 		seriesService := orm.NewSeriesService(db)
 		planService := orm.NewPricingPlanService(db)
-		resolver := gql.NewResolver(seriesService, planService)
+		readingService := orm.NewMeterReadingService(db)
+		resolver := gql.NewResolver(seriesService, planService, readingService)
 		apiHandler := handler.GraphQL(gql.NewExecutableSchema(gql.Config{Resolvers: resolver})).ServeHTTP
 		server, e := http.NewServer(config, apiHandler)
 		if e != nil {
