@@ -14,10 +14,10 @@ import (
 )
 
 func TestMutationResolver_CreateSeries(t *testing.T) {
-	seriesService, planService := createMockServices()
+	seriesService, planService, readingService := createMockServices()
 	series := domain.Series{Name: "A new series", Id: 6}
 	seriesService.On("Save").Return(6, nil)
-	resolver := NewResolver(seriesService, planService)
+	resolver := NewResolver(seriesService, planService, readingService)
 
 	newSeries := NewSeriesInput{Name: series.Name}
 	got, err := resolver.Mutation().CreateSeries(context.Background(), newSeries)
@@ -27,9 +27,9 @@ func TestMutationResolver_CreateSeries(t *testing.T) {
 }
 
 func TestMutationResolver_DeleteSeries(t *testing.T) {
-	seriesService, planService := createMockServices()
+	seriesService, planService, readingService := createMockServices()
 	seriesService.On("Delete", uint(44)).Return(nil)
-	resolver := NewResolver(seriesService, planService)
+	resolver := NewResolver(seriesService, planService, readingService)
 
 	id, err := resolver.Mutation().DeleteSeries(context.Background(), 44)
 	assert.Equal(t, 44, id, "reported id should be 44")
@@ -38,14 +38,14 @@ func TestMutationResolver_DeleteSeries(t *testing.T) {
 }
 
 func TestMutationResolver_CreatePricingPlan(t *testing.T) {
-	seriesService, planService := createMockServices()
+	seriesService, planService, readingService := createMockServices()
 	series := domain.Series{Id: 27, Name: "Power"}
 	seriesService.On("QueryById", uint(27)).Return(&series, nil)
 	validFrom1, _ := time.Parse(orm.DateFormat, "2018-01-01")
 	validTo1, _ := time.Parse(orm.DateFormat, "2018-12-31")
 	plan := domain.PricingPlan{Id: 677, Name: "Power 2020", BasePrice: 40, UnitPrice: 23, ValidFrom: &validFrom1, ValidTo: &validTo1, Series: &series}
 	planService.On("Save").Return(677, nil)
-	resolver := NewResolver(seriesService, planService)
+	resolver := NewResolver(seriesService, planService, readingService)
 
 	validToStr := validTo1.Format(orm.DateFormat)
 	newPlan := NewPricingPlanInput{Name: "Power 2020", BasePrice: 40, UnitPrice: 23, ValidFrom: validFrom1.Format(orm.DateFormat), ValidTo: &validToStr, SeriesID: 27}
@@ -54,11 +54,38 @@ func TestMutationResolver_CreatePricingPlan(t *testing.T) {
 	comparePlans(t, plan, got, "created plan")
 }
 
+func Test_mutationResolver_CreateMeterReading(t *testing.T) {
+	seriesService, planService, readingService := createMockServices()
+	series := domain.Series{
+		Id:   62,
+		Name: "Chocolate Consumption",
+	}
+	date, _ := time.Parse(orm.DateFormat, "2020-01-20")
+	seriesService.On("QueryById", uint(62)).Return(&series, nil)
+	readingService.On("Save").Return(82, nil)
+
+	newReading := MeterReadingInput{
+		Count: 53.2, Date: date.Format(orm.DateFormat), SeriesID: 62,
+	}
+	resolver := NewResolver(seriesService, planService, readingService)
+	got, err := resolver.Mutation().CreateMeterReading(context.Background(), &newReading)
+	assert.NoError(t, err, "no error expected")
+	reading := domain.MeterReading{Id: 82, Date: date, Series: &series, Count: 53.2}
+	compareMeterReadings(t, reading, got, "created reading")
+}
+
+func compareMeterReadings(t *testing.T, expected domain.MeterReading, got *MeterReading, msg string) {
+	assert.Equal(t, expected.Date.Format(orm.DateFormat), got.Date, "date of %s is wrong", msg)
+	assert.Equal(t, expected.Count, got.Count, "count of %s is wrong", msg)
+	assert.Equal(t, expected.Series.Id, uint(got.SeriesID), "seriesId of %s is wrong", msg)
+	assert.Equal(t, expected.Id, uint(got.ID), "id of %s is wrong")
+}
+
 func TestQueryResolver_Series(t *testing.T) {
-	seriesService, planService := createMockServices()
+	seriesService, planService, readingService := createMockServices()
 	series := domain.Series{Id: 55, Name: "Water"}
 	seriesService.On("QueryById", uint(55)).Return(&series, nil)
-	resolver := NewResolver(seriesService, planService)
+	resolver := NewResolver(seriesService, planService, readingService)
 
 	got, err := resolver.Query().Series(context.Background(), 55)
 	assert.NoError(t, err, "no error expected")
@@ -71,10 +98,10 @@ func compareSeries(t *testing.T, s domain.Series, got *Series, msg string) {
 }
 
 func TestQueryResolver_AllSeries(t *testing.T) {
-	seriesService, planService := createMockServices()
+	seriesService, planService, readingService := createMockServices()
 	series := []domain.Series{{Id: 25, Name: "Power"}, {Id: 33, Name: "Water"}}
 	seriesService.On("QueryAll").Return(series, nil)
-	resolver := NewResolver(seriesService, planService)
+	resolver := NewResolver(seriesService, planService, readingService)
 
 	got, err := resolver.Query().AllSeries(context.Background())
 	assert.NoError(t, err, "no error expected")
@@ -85,7 +112,7 @@ func TestQueryResolver_AllSeries(t *testing.T) {
 }
 
 func TestQueryResolver_PricingPlans(t *testing.T) {
-	seriesService, planService := createMockServices()
+	seriesService, planService, readingService := createMockServices()
 	validFrom1, _ := time.Parse(orm.DateFormat, "2018-01-01")
 	validTo1, _ := time.Parse(orm.DateFormat, "2018-12-31")
 	validFrom2, _ := time.Parse(orm.DateFormat, "2019-01-01")
@@ -95,7 +122,7 @@ func TestQueryResolver_PricingPlans(t *testing.T) {
 		{Id: 6, Name: "Year 2019", BasePrice: 13, UnitPrice: 0.35, ValidFrom: &validFrom2, Series: &series},
 	}
 	planService.On("QueryForSeries", uint(25)).Return(plans, nil)
-	resolver := NewResolver(seriesService, planService)
+	resolver := NewResolver(seriesService, planService, readingService)
 
 	got, err := resolver.Query().PricingPlans(context.Background(), 25)
 	assert.NoError(t, err, "no error expected")
@@ -120,8 +147,8 @@ func comparePlans(t *testing.T, p domain.PricingPlan, got *PricingPlan, msg stri
 	}
 }
 
-func createMockServices() (*mockSeriesService, *mockPricingPlanService) {
-	return new(mockSeriesService), new(mockPricingPlanService)
+func createMockServices() (*mockSeriesService, *mockPricingPlanService, *mockReadingService) {
+	return new(mockSeriesService), new(mockPricingPlanService), new(mockReadingService)
 }
 
 type mockSeriesService struct {
@@ -189,4 +216,26 @@ func (m mockPricingPlanService) QueryForSeries(id uint) ([]domain.PricingPlan, e
 		return nil, err
 	}
 	return args.([]domain.PricingPlan), nil
+}
+
+type mockReadingService struct {
+	mock.Mock
+}
+
+func (m mockReadingService) Save(reading *domain.MeterReading) error {
+	idToSet := m.Called().Int(0)
+	err := m.Called().Error(1)
+	if err != nil {
+		return err
+	}
+	reading.Id = uint(idToSet)
+	return nil
+}
+
+func (m mockReadingService) Delete(uint) error {
+	panic("implement me")
+}
+
+func (m mockReadingService) QueryForSeries(uint) ([]domain.MeterReading, error) {
+	panic("implement me")
 }

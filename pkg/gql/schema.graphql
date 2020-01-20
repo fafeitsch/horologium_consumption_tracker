@@ -15,6 +15,13 @@ type PricingPlan {
   seriesId: Int!
 }
 
+type MeterReading{
+  id: Int!
+  count: Float!
+  date: Date!
+  seriesId: Int!
+}
+
 type Query {
   allSeries: [Series!]!
   series(id: Int!): Series
@@ -34,8 +41,15 @@ input NewPricingPlanInput{
   seriesId: Int!
 }
 
+input MeterReadingInput{
+  count: Float!
+  date: Date!
+  seriesId: Int!
+}
+
 type Mutation {
   createSeries(series: NewSeriesInput!): Series!
   deleteSeries(id: Int!): Int!
   createPricingPlan(plan: NewPricingPlanInput): PricingPlan!
+  createMeterReading(reading: MeterReadingInput): MeterReading!
 }

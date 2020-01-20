@@ -35,3 +35,16 @@ func toQLPricingPlan(plan *domain.PricingPlan) *PricingPlan {
 		SeriesID:  int(plan.Series.Id),
 	}
 }
+
+func toQlMeterReading(reading *domain.MeterReading) *MeterReading {
+	if reading == nil {
+		return nil
+	}
+	date := reading.Date.Format(orm.DateFormat)
+	return &MeterReading{
+		ID:       int(reading.Id),
+		Count:    float64(reading.Count),
+		Date:     date,
+		SeriesID: int(reading.Series.Id),
+	}
+}

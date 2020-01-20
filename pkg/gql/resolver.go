@@ -13,19 +13,23 @@ type Resolver interface {
 	Query() QueryResolver
 }
 
-func NewResolver(seriesService orm.SeriesService, planService orm.PricingPlanService) Resolver {
+func NewResolver(seriesService orm.SeriesService, planService orm.PricingPlanService, meterService orm.MeterReadingService) Resolver {
 	if seriesService == nil {
 		panic("the series service is nil")
 	}
 	if planService == nil {
 		panic("the plan service is nil")
 	}
-	return &resolverImpl{seriesService: seriesService, planService: planService}
+	if meterService == nil {
+		panic("the meter service is nil")
+	}
+	return &resolverImpl{seriesService: seriesService, planService: planService, meterService: meterService}
 }
 
 type resolverImpl struct {
 	seriesService orm.SeriesService
 	planService   orm.PricingPlanService
+	meterService  orm.MeterReadingService
 }
 
 func (r *resolverImpl) Mutation() MutationResolver {
@@ -79,6 +83,27 @@ func (r *mutationResolver) CreatePricingPlan(ctx context.Context, plan *NewPrici
 		return nil, fmt.Errorf("the pricing plan could not be saved: %v", err)
 	}
 	return toQLPricingPlan(&newPlan), nil
+}
+
+func (r *mutationResolver) CreateMeterReading(ctx context.Context, reading *MeterReadingInput) (*MeterReading, error) {
+	date, err := time.Parse(orm.DateFormat, reading.Date)
+	if err != nil {
+		return nil, fmt.Errorf("could not parse date \"%s\" as \"%s\"", reading.Date, orm.DateFormat)
+	}
+	series, err := r.seriesService.QueryById(uint(reading.SeriesID))
+	if err != nil {
+		return nil, fmt.Errorf("could not find a series with ID %d", reading.SeriesID)
+	}
+	newReading := domain.MeterReading{
+		Count:  reading.Count,
+		Date:   date,
+		Series: series,
+	}
+	err = r.meterService.Save(&newReading)
+	if err != nil {
+		return nil, fmt.Errorf("the meter reading could not be saved: %v", err)
+	}
+	return toQlMeterReading(&newReading), nil
 }
 
 type queryResolver struct{ *resolverImpl }
