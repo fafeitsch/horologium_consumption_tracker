@@ -28,6 +28,8 @@ import {PricingPlanManagerComponent} from '../plan/pricing-plan-manager/pricing-
 import {PricingPlanEditorComponent} from '../plan/pricing-plan-editor/pricing-plan-editor.component';
 import {FormsModule} from '@angular/forms';
 import {MY_DATE_FORMATS} from './MyDateAdapter';
+import { MeterReadingManagerComponent } from '../meterReading/meter-reading-manager/meter-reading-manager.component';
+import { MeterReadingTableComponent } from '../meterReading/meter-reading-table/meter-reading-table.component';
 
 @NgModule({
   declarations: [
@@ -39,6 +41,8 @@ import {MY_DATE_FORMATS} from './MyDateAdapter';
     PricingPlanTableComponent,
     PricingPlanManagerComponent,
     PricingPlanEditorComponent,
+    MeterReadingManagerComponent,
+    MeterReadingTableComponent,
   ],
   imports: [
     BrowserModule,

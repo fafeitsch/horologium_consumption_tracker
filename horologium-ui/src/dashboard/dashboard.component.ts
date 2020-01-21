@@ -6,6 +6,7 @@ import {PricingPlanService} from '../plan/pricing-plan.service';
 import {Plan} from '../plan/plan';
 import {Observable} from 'rxjs';
 import {PricingPlanServiceListener} from '../plan/pricing-plan-service-listener';
+import {MeterReading} from '../meterReading/meter-reading';
 
 @Component({
   selector: 'app-dashboard',
@@ -18,6 +19,7 @@ export class DashboardComponent implements OnInit, PricingPlanServiceListener {
   private series: Series[];
   private selectedSeries: Series;
   private pricingPlans: Plan[];
+  private meterReadings: MeterReading[];
   private savePlan: (plan: Plan) => Observable<Plan>;
 
   constructor(private seriesService: SeriesService, private planService: PricingPlanService, private router: Router) {
