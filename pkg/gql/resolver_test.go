@@ -86,7 +86,7 @@ func compareMeterReadings(t *testing.T, expected domain.MeterReading, got *Meter
 	assert.Equal(t, expected.Date.Format(orm.DateFormat), got.Date, "date of %s is wrong", msg)
 	assert.Equal(t, expected.Count, got.Count, "count of %s is wrong", msg)
 	assert.Equal(t, expected.Series.Id, uint(got.SeriesID), "seriesId of %s is wrong", msg)
-	assert.Equal(t, expected.Id, uint(got.ID), "id of %s is wrong")
+	assert.Equal(t, expected.Id, uint(got.ID), "id of %s is wrong", msg)
 }
 
 func TestQueryResolver_Series(t *testing.T) {
@@ -152,6 +152,34 @@ func comparePlans(t *testing.T, p domain.PricingPlan, got *PricingPlan, msg stri
 		assert.Equal(t, validTo, *got.ValidTo, "validTo of %s", msg)
 	} else {
 		assert.Nil(t, got.ValidTo, "validTo of %s", msg)
+	}
+}
+
+func TestQueryResolver_MeterReadings(t *testing.T) {
+	seriesService, planService, readingService := createMockServices()
+	now := time.Now()
+	series := domain.Series{Name: "Beer", Id: 93}
+	reading1 := domain.MeterReading{
+		Id:     62,
+		Count:  25.2,
+		Date:   now,
+		Series: &series,
+	}
+	reading2 := domain.MeterReading{
+		Id:     43,
+		Count:  74.2,
+		Date:   now.Add(24 * time.Hour),
+		Series: &series,
+	}
+	readings := []domain.MeterReading{reading1, reading2}
+	readingService.On("QueryForSeries", uint(93)).Return(readings, nil)
+
+	resolver := NewResolver(seriesService, planService, readingService)
+	got, err := resolver.Query().MeterReadings(context.Background(), &MeterReadingQuery{SeriesID: 93})
+	assert.NoError(t, err, "no error expected")
+	require.Equal(t, len(readings), len(got), "number of got meter readings is not correct")
+	for index, gotReading := range got {
+		compareMeterReadings(t, readings[index], gotReading, fmt.Sprintf("reading at %d", index))
 	}
 }
 
@@ -244,6 +272,11 @@ func (m mockReadingService) Delete(uint) error {
 	panic("implement me")
 }
 
-func (m mockReadingService) QueryForSeries(uint) ([]domain.MeterReading, error) {
-	panic("implement me")
+func (m mockReadingService) QueryForSeries(seriesId uint) ([]domain.MeterReading, error) {
+	args := m.Called(seriesId).Get(0)
+	err := m.Called(seriesId).Error(1)
+	if err != nil {
+		return nil, err
+	}
+	return args.([]domain.MeterReading), nil
 }

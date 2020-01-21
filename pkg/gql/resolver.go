@@ -136,3 +136,15 @@ func (r *queryResolver) PricingPlans(ctx context.Context, seriesID int) ([]*Pric
 	}
 	return result, nil
 }
+
+func (r *queryResolver) MeterReadings(ctx context.Context, query *MeterReadingQuery) ([]*MeterReading, error) {
+	dbResult, err := r.meterService.QueryForSeries(uint(query.SeriesID))
+	if err != nil {
+		return []*MeterReading{}, err
+	}
+	result := make([]*MeterReading, 0, len(dbResult))
+	for _, res := range dbResult {
+		result = append(result, toQlMeterReading(&res))
+	}
+	return result, nil
+}

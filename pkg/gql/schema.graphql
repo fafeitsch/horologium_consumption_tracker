@@ -22,10 +22,15 @@ type MeterReading{
   seriesId: Int!
 }
 
+input meterReadingQuery{
+  seriesId: Int!
+}
+
 type Query {
   allSeries: [Series!]!
   series(id: Int!): Series
   pricingPlans(seriesId: Int!): [PricingPlan!]!
+  meterReadings(query: meterReadingQuery): [MeterReading]!
 }
 
 input NewSeriesInput {
