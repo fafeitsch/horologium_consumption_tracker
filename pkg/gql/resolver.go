@@ -137,8 +137,8 @@ func (r *queryResolver) PricingPlans(ctx context.Context, seriesID int) ([]*Pric
 	return result, nil
 }
 
-func (r *queryResolver) MeterReadings(ctx context.Context, query *MeterReadingQuery) ([]*MeterReading, error) {
-	dbResult, err := r.meterService.QueryForSeries(uint(query.SeriesID))
+func (r *queryResolver) MeterReadings(ctx context.Context, id int) ([]*MeterReading, error) {
+	dbResult, err := r.meterService.QueryForSeries(uint(id))
 	if err != nil {
 		return []*MeterReading{}, err
 	}

@@ -1,0 +1,25 @@
+<h2 mat-dialog-title>Meter Reading Editor</h2>
+<mat-dialog-content>
+  <form #myForm="ngForm">
+    <div class="form-row">
+      <mat-form-field class="full-width">
+        <input matInput [matDatepicker]="validFromPicker" placeholder="Date" [(ngModel)]="date" name="date" ngDefaultControl required/>
+        <mat-datepicker-toggle matSuffix [for]="validFromPicker"></mat-datepicker-toggle>
+        <mat-datepicker #validFromPicker [(ngModel)]="date" name="date" ngDefaultControl></mat-datepicker>
+      </mat-form-field>
+    </div>
+    <div class="form-row">
+      <mat-form-field class="full-width">
+        <input matInput placeholder="Count" required [(ngModel)]="count" name="planName" ngDefaultControl/>
+      </mat-form-field>
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-card *ngIf="validityResult">
+  <mat-card-title>Meter Reading not acceptable!</mat-card-title>
+  <mat-card-content>{{validityResult}}</mat-card-content>
+</mat-card>
+<mat-dialog-actions class="form-row align-right">
+  <button mat-button (click)="saveClicked()" color="primary" [disabled]="!myForm.form.valid">Save</button>
+  <button mat-button [mat-dialog-close]="false" color="primary">Cancel</button>
+</mat-dialog-actions>

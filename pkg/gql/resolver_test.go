@@ -175,7 +175,7 @@ func TestQueryResolver_MeterReadings(t *testing.T) {
 	readingService.On("QueryForSeries", uint(93)).Return(readings, nil)
 
 	resolver := NewResolver(seriesService, planService, readingService)
-	got, err := resolver.Query().MeterReadings(context.Background(), &MeterReadingQuery{SeriesID: 93})
+	got, err := resolver.Query().MeterReadings(context.Background(), 93)
 	assert.NoError(t, err, "no error expected")
 	require.Equal(t, len(readings), len(got), "number of got meter readings is not correct")
 	for index, gotReading := range got {

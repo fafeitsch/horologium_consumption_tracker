@@ -7,13 +7,15 @@ import {Plan} from '../plan/plan';
 import {Observable} from 'rxjs';
 import {PricingPlanServiceListener} from '../plan/pricing-plan-service-listener';
 import {MeterReading} from '../meterReading/meter-reading';
+import {MeterReadingServiceListener} from '../meterReading/meter-reading-service-listener';
+import {MeterReadingService} from '../meterReading/meter-reading.service';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
-export class DashboardComponent implements OnInit, PricingPlanServiceListener {
+export class DashboardComponent implements OnInit, PricingPlanServiceListener, MeterReadingServiceListener {
 
   // noinspection JSMismatchedCollectionQueryUpdate
   private series: Series[];
@@ -21,12 +23,21 @@ export class DashboardComponent implements OnInit, PricingPlanServiceListener {
   private pricingPlans: Plan[];
   private meterReadings: MeterReading[];
   private savePlan: (plan: Plan) => Observable<Plan>;
+  private saveMeterReading: (reading: MeterReading) => Observable<MeterReading>;
 
-  constructor(private seriesService: SeriesService, private planService: PricingPlanService, private router: Router) {
+  constructor(private seriesService: SeriesService,
+              private planService: PricingPlanService,
+              private meterReadingService: MeterReadingService,
+              private router: Router) {
     planService.addListener(this);
+    meterReadingService.addListener(this);
     this.savePlan = (plan: Plan) => {
       plan.seriesId = this.selectedSeries.id;
       return this.planService.savePricingPlan(plan);
+    };
+    this.saveMeterReading = (reading: MeterReading) => {
+      reading.seriesId = this.selectedSeries.id;
+      return this.meterReadingService.saveMeterReading(reading);
     };
   }
 
@@ -47,12 +58,23 @@ export class DashboardComponent implements OnInit, PricingPlanServiceListener {
       console.log(error);
       this.router.navigate(['login']).then();
     });
+    this.meterReadingService.queryMeterReadings(series.id).subscribe(resp => {
+      this.meterReadings = resp;
+    }, (error) => {
+      console.log(error);
+      this.router.navigate(['login']).then();
+    });
   }
 
-  pricingPlanAdded(newPlan: Plan): void {
-    console.log(newPlan);
-    console.log(this.selectedSeries);
+  public pricingPlanAdded(newPlan: Plan): void {
     if (newPlan && this.selectedSeries && newPlan.seriesId === this.selectedSeries.id) {
+      // trigger manual update
+      this.selectedSeriesChanged(this.selectedSeries);
+    }
+  }
+
+  public meterReadingAdded(meterReading: MeterReading): void {
+    if (meterReading && this.selectedSeries && meterReading.seriesId === this.selectedSeries.id) {
       // trigger manual update
       this.selectedSeriesChanged(this.selectedSeries);
     }

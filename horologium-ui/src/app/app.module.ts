@@ -30,6 +30,7 @@ import {FormsModule} from '@angular/forms';
 import {MY_DATE_FORMATS} from './MyDateAdapter';
 import { MeterReadingManagerComponent } from '../meterReading/meter-reading-manager/meter-reading-manager.component';
 import { MeterReadingTableComponent } from '../meterReading/meter-reading-table/meter-reading-table.component';
+import { MeterReadingEditorComponent } from '../meterReading/meter-reading-editor/meter-reading-editor.component';
 
 @NgModule({
   declarations: [
@@ -43,6 +44,7 @@ import { MeterReadingTableComponent } from '../meterReading/meter-reading-table/
     PricingPlanEditorComponent,
     MeterReadingManagerComponent,
     MeterReadingTableComponent,
+    MeterReadingEditorComponent,
   ],
   imports: [
     BrowserModule,
@@ -68,7 +70,8 @@ import { MeterReadingTableComponent } from '../meterReading/meter-reading-table/
     FormsModule,
   ],
   entryComponents: [
-    PricingPlanEditorComponent
+    PricingPlanEditorComponent,
+    MeterReadingEditorComponent,
   ],
   providers: [
     {provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS},

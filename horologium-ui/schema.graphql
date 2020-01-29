@@ -5,7 +5,15 @@ schema {
   mutation: Mutation
 }
 
+type MeterReading {
+  count: Float!
+  date: Date!
+  id: Int!
+  seriesId: Int!
+}
+
 type Mutation {
+  createMeterReading(reading: MeterReadingInput): MeterReading!
   createPricingPlan(plan: NewPricingPlanInput): PricingPlan!
   createSeries(series: NewSeriesInput!): Series!
   deleteSeries(id: Int!): Int!
@@ -13,7 +21,7 @@ type Mutation {
 
 type PricingPlan {
   basePrice: Float!
-  id: ID!
+  id: Int!
   name: String!
   seriesId: Int!
   unitPrice: Float!
@@ -23,19 +31,26 @@ type PricingPlan {
 
 type Query {
   allSeries: [Series!]!
+  meterReadings(seriesId: Int!): [MeterReading]!
   pricingPlans(seriesId: Int!): [PricingPlan!]!
   series(id: Int!): Series
 }
 
 type Series {
-  id: ID!
+  id: Int!
   name: String!
 }
 
+input MeterReadingInput {
+  count: Float!
+  date: Date!
+  seriesId: Int!
+}
+
 input NewPricingPlanInput {
-  SeriesId: Int!
   basePrice: Float!
   name: String!
+  seriesId: Int!
   unitPrice: Float!
   validFrom: Date!
   validTo: Date
