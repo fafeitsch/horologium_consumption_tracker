@@ -254,6 +254,10 @@ func (m mockPricingPlanService) QueryForSeries(id uint) ([]domain.PricingPlan, e
 	return args.([]domain.PricingPlan), nil
 }
 
+func (m mockPricingPlanService) QueryForTime(uint, time.Time) (*domain.PricingPlan, error) {
+	panic("implement me")
+}
+
 type mockReadingService struct {
 	mock.Mock
 }
@@ -279,4 +283,8 @@ func (m mockReadingService) QueryForSeries(seriesId uint) ([]domain.MeterReading
 		return nil, err
 	}
 	return args.([]domain.MeterReading), nil
+}
+
+func (m mockReadingService) QueryOpenInterval(uint, time.Time, time.Time) ([]domain.MeterReading, error) {
+	panic("implement me")
 }

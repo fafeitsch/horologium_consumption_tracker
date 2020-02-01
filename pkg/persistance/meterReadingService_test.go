@@ -1,6 +1,7 @@
 package orm
 
 import (
+	"fmt"
 	"github.com/fafeitsch/Horologium/pkg/domain"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -70,4 +71,54 @@ func TestMeterReadingServiceImpl_DeleteZero(t *testing.T) {
 
 	err := service.Delete(0)
 	assert.EqualError(t, err, "cannot delete entity with id 0", "Id = 0 is not allowed for deletion.")
+}
+
+func compareMeterReadings(t *testing.T, want domain.MeterReading, got domain.MeterReading, msg string) {
+	assert.Equal(t, want.Series, got.Series, "series of %s wrong", msg)
+	assert.Equal(t, want.Id, got.Id, "id of %s wrong", msg)
+	assert.Equal(t, want.Date, got.Date, "date of %s wrong", msg)
+	assert.Equal(t, want.Count, got.Count, "count of %s wrong", msg)
+}
+
+func TestMeterReadingServiceImpl_QueryOpenInterval(t *testing.T) {
+	db, _ := CreateInMemoryDb()
+	defer func() { _ = db.Close() }()
+	service := NewMeterReadingService(db)
+
+	april, _ := time.Parse(DateFormat, "2019-04-28")
+	may, _ := time.Parse(DateFormat, "2019-05-29")
+	june1, _ := time.Parse(DateFormat, "2019-06-10")
+	june2, _ := time.Parse(DateFormat, "2019-06-28")
+	july, _ := time.Parse(DateFormat, "2019-07-02")
+	august, _ := time.Parse(DateFormat, "2019-08-01")
+	dates := []time.Time{april, may, june1, june2, july, august}
+
+	water := domain.Series{Name: "Water"}
+	power := domain.Series{Name: "Power"}
+	for _, date := range dates {
+		waterReading := domain.MeterReading{Count: 636, Date: date, Series: &water}
+		powerReading := domain.MeterReading{Count: 700, Date: date, Series: &power}
+		_ = service.Save(&powerReading)
+		_ = service.Save(&waterReading)
+	}
+	waterReadings, _ := service.QueryForSeries(water.Id)
+	powerReadings, _ := service.QueryForSeries(power.Id)
+	require.Equal(t, 6, len(waterReadings), "the water readings were not saved correctly")
+	require.Equal(t, 6, len(powerReadings), "the power readings were not saved correctly")
+
+	firstJune, _ := time.Parse(DateFormat, "2019-06-01")
+	lastJune, _ := time.Parse(DateFormat, "2019-06-30")
+	got, err := service.QueryOpenInterval(water.Id, firstJune, lastJune)
+	require.NoError(t, err, "no error expected")
+	require.Equal(t, 4, len(got), "number of got readings not correct")
+	for index, want := range waterReadings[1:5] {
+		compareMeterReadings(t, want, got[index], fmt.Sprintf("meter reading at index %d", index))
+	}
+
+	got, err = service.QueryOpenInterval(power.Id, april, august)
+	require.NoError(t, err, "no error expected")
+	require.Equal(t, 6, len(got), "number of got readings not correct")
+	for index, want := range powerReadings {
+		compareMeterReadings(t, want, got[index], fmt.Sprintf("meter reading at index %d", index))
+	}
 }
