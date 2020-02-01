@@ -2,15 +2,18 @@ package orm
 
 import (
 	"errors"
+	"fmt"
 	"github.com/fafeitsch/Horologium/pkg/domain"
 	"github.com/jinzhu/gorm"
+	"time"
 )
 
 type PricingPlanService interface {
 	Save(*domain.PricingPlan) error
 	Delete(uint) error
 	QueryAll() ([]domain.PricingPlan, error)
-	QueryForSeries(id uint) ([]domain.PricingPlan, error)
+	QueryForSeries(uint) ([]domain.PricingPlan, error)
+	QueryForTime(uint, time.Time) (*domain.PricingPlan, error)
 }
 
 func NewPricingPlanService(db *gorm.DB) PricingPlanService {
@@ -60,4 +63,17 @@ func (p *PricingPlanServiceImpl) QueryForSeries(seriesId uint) ([]domain.Pricing
 		result = append(result, res.toDomainPricingPlan())
 	}
 	return result, err
+}
+
+func (p *PricingPlanServiceImpl) QueryForTime(seriesId uint, t time.Time) (*domain.PricingPlan, error) {
+	resultSet := make([]pricingPlanEntity, 0, 0)
+	err := p.db.Where("DATE(valid_from) <= ? AND DATE(valid_to) >= ? AND series_id = ?", t, t, seriesId).Find(&resultSet).Error
+	if err != nil {
+		return nil, err
+	}
+	if len(resultSet) != 1 {
+		return nil, fmt.Errorf("there were %d plans for the date %v AND seriesId %d", len(resultSet), t, seriesId)
+	}
+	result := resultSet[0].toDomainPricingPlan()
+	return &result, nil
 }
