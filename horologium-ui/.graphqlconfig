@@ -1,6 +1,6 @@
 {
-  "name": "Untitled GraphQL Schema",
-  "schemaPath": "schema.graphql",
+  "name": "API GraphQL Definition",
+  "schemaPath": "autogen_schema.graphql",
   "extensions": {
     "endpoints": {
       "Default GraphQL Endpoint": {
