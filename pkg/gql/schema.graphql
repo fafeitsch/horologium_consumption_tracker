@@ -22,11 +22,25 @@ type MeterReading{
   seriesId: Int!
 }
 
+type Statistics{
+  validFrom: Date!
+  validTo: Date!
+  costs: Float!
+  consumption: Float!
+}
+
+enum Granularity {
+  DAILY,
+  MONTHLY,
+  YEARLY
+}
+
 type Query {
   allSeries: [Series!]!
   series(id: Int!): Series
   pricingPlans(seriesId: Int!): [PricingPlan!]!
   meterReadings(seriesId: Int!): [MeterReading]!
+  statistics(seriesId: Int!, start: Date!, end: Date!, granularity: Granularity!): [Statistics]!
 }
 
 input NewSeriesInput {

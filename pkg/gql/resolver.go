@@ -3,6 +3,7 @@ package gql
 import (
 	"context"
 	"fmt"
+	"github.com/fafeitsch/Horologium/pkg/consumption"
 	"github.com/fafeitsch/Horologium/pkg/domain"
 	orm "github.com/fafeitsch/Horologium/pkg/persistance"
 	"github.com/fafeitsch/Horologium/pkg/util"
@@ -146,6 +147,58 @@ func (r *queryResolver) MeterReadings(ctx context.Context, id int) ([]*MeterRead
 	result := make([]*MeterReading, 0, len(dbResult))
 	for _, res := range dbResult {
 		result = append(result, toQlMeterReading(&res))
+	}
+	return result, nil
+}
+
+func (r *queryResolver) Statistics(ctx context.Context, seriesId int, startString string, endString string, granularity Granularity) ([]*Statistics, error) {
+	readings, err := r.meterService.QueryForSeries(uint(seriesId))
+	if err != nil {
+		return []*Statistics{}, err
+	}
+	plans, err := r.planService.QueryForSeries(uint(seriesId))
+	if err != nil {
+		return []*Statistics{}, err
+	}
+	start, err := time.Parse(util.DateFormat, startString)
+	if err != nil {
+		return []*Statistics{}, fmt.Errorf("could not parse the start date \"%s\": %v", startString, err)
+	}
+	end, err := time.Parse(util.DateFormat, endString)
+	if err != nil {
+		return []*Statistics{}, fmt.Errorf("could not parse the end date \"%s\": %v", endString, err)
+	}
+	if start.After(end) {
+		return []*Statistics{}, fmt.Errorf("the start date \"%s\" is after the end date \"%s\"", startString, endString)
+	}
+	if granularity != GranularityMonthly {
+		return []*Statistics{}, fmt.Errorf("other granularity than monthly is currently not supported")
+	}
+	result := make([]*Statistics, 0, 0)
+	monthStart := start
+	for monthStart != end {
+		addedStart := monthStart.AddDate(0, 1, 0)
+		month := addedStart.Month()
+		year := addedStart.Year()
+		monthEnd := time.Date(year, month, 1, 0, 0, 0, 0, time.Local)
+		if end.Before(monthEnd) {
+			monthEnd = end
+		}
+		params := consumption.Parameters{
+			Start:    monthStart,
+			End:      monthEnd,
+			Readings: readings,
+			Plans:    plans,
+		}
+		costs, cons := consumption.Costs(params)
+		stats := &Statistics{
+			ValidFrom:   monthStart.Format(util.DateFormat),
+			ValidTo:     monthEnd.Format(util.DateFormat),
+			Costs:       costs,
+			Consumption: cons,
+		}
+		result = append(result, stats)
+		monthStart = monthEnd
 	}
 	return result, nil
 }

@@ -53,8 +53,8 @@ func TestCalculate_Simple(t *testing.T) {
 		Date:  util.FormatDate(2019, 12, 31),
 	}
 	params := Parameters{
-		readings: []domain.MeterReading{zeroReading, firstReading, secondReading, thirdReading, forthReading, fifthReading},
-		plans:    []domain.PricingPlan{plan1, plan2, plan3},
+		Readings: []domain.MeterReading{zeroReading, firstReading, secondReading, thirdReading, forthReading, fifthReading},
+		Plans:    []domain.PricingPlan{plan1, plan2, plan3},
 	}
 	tests := []struct {
 		name            string
@@ -73,7 +73,7 @@ func TestCalculate_Simple(t *testing.T) {
 			name:            "year",
 			start:           util.FormatDate(2019, 1, 1),
 			end:             util.FormatDatePtr(2019, 12, 31),
-			wantCosts:       2497.3801980198014,
+			wantCosts:       2475.380198019802,
 			wantConsumption: 847,
 		},
 	}
@@ -81,10 +81,11 @@ func TestCalculate_Simple(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			params.Start = tt.start
 			params.End = *tt.end
-			costs := Costs(params)
+			costs, accumulatedConsumption := Costs(params)
 			consumption := Consumption(params)
 			assert.Equal(t, tt.wantCosts, costs, "calculated costs not correct")
 			assert.Equal(t, tt.wantConsumption, consumption, "calculated consumption not correct")
+			assert.Equal(t, tt.wantConsumption, accumulatedConsumption, "accumulated calculated consumption not correct")
 		})
 	}
 }
