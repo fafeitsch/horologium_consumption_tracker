@@ -18,12 +18,6 @@ type Parameters struct {
 // * Plans must be continous
 // * Plans must not overlap
 
-func Consumption(params Parameters) float64 {
-	valueStart := params.Readings.InterpolateValueAtDate(params.Start)
-	valueEnd := params.Readings.InterpolateValueAtDate(params.End)
-	return valueEnd - valueStart
-}
-
 func Costs(params Parameters) (costs float64, totalConsumption float64) {
 	plans := params.Plans
 	costs = 0.0
@@ -39,7 +33,7 @@ func Costs(params Parameters) (costs float64, totalConsumption float64) {
 		if plan.ValidTo != nil && plan.ValidTo.Before(end) {
 			end = (*plan.ValidTo).Add(24 * time.Hour)
 		}
-		consumption := Consumption(Parameters{Start: start, End: end, Readings: params.Readings})
+		consumption := params.Readings.Consumption(start, end)
 		totalConsumption = totalConsumption + consumption
 		costs = costs + consumption*plan.UnitPrice + plan.BasePrice*float64(monthsBetween(start, end))
 		if index < len(plans)-1 {
@@ -54,7 +48,7 @@ func Costs(params Parameters) (costs float64, totalConsumption float64) {
 //no matter whether they are contained completely or not. However, the end is exclusive. For example,
 //2019-30-4 and 2019-05-01 contains one months; and 2019-30-4 and 2019-05-02 contains two months.
 func monthsBetween(start time.Time, end time.Time) int {
-	yearMonths := (start.Year() - end.Year()) * 12
+	yearMonths := (end.Year() - start.Year()) * 12
 	months := yearMonths + int(end.Month()-start.Month()+1)
 	if end.Day() == 1 {
 		return months - 1

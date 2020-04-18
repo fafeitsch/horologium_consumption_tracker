@@ -20,13 +20,13 @@ type MeterReading struct {
 
 type MeterReadings []MeterReading
 
-func (m MeterReadings) InterpolateValueAtDate(date time.Time) float64 {
+func (m MeterReadings) interpolateValueAtDate(date time.Time) float64 {
 	firstReading := m.lastReadingBefore(date)
 	lastReading := m.firstReadingAfter(date)
 	if firstReading == lastReading {
 		lastReading = m.firstReadingAfter(firstReading.Date.Add(24 * time.Hour))
 	}
-	if date == lastReading.Date {
+	if date == lastReading.Date || date.After(lastReading.Date) {
 		return lastReading.Count
 	}
 	differenceDays := math.Round(lastReading.Date.Sub(firstReading.Date).Hours() / 24)
@@ -58,6 +58,12 @@ func (m MeterReadings) firstReadingAfter(date time.Time) MeterReading {
 		return m[0]
 	}
 	return m[index-1]
+}
+
+func (m MeterReadings) Consumption(start time.Time, end time.Time) float64 {
+	valueStart := m.interpolateValueAtDate(start)
+	valueEnd := m.interpolateValueAtDate(end)
+	return valueEnd - valueStart
 }
 
 type PricingPlan struct {

@@ -4,7 +4,33 @@ import (
 	"github.com/fafeitsch/Horologium/pkg/util"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
+
+func TestInterpolateValueAtDate(t *testing.T) {
+	readings := MeterReadings{
+		{Date: util.FormatDate(2019, 9, 12), Count: 45},
+		{Date: util.FormatDate(2019, 9, 23), Count: 80},
+		{Date: util.FormatDate(2019, 9, 27), Count: 134},
+		{Date: util.FormatDate(2019, 9, 30), Count: 178},
+	}
+	tests := []struct {
+		date string
+		want float64
+	}{
+		{date: "2019-09-27", want: 134},
+		{date: "2019-09-30", want: 178},
+		{date: "2020-01-02", want: 178},
+		{date: "2019-09-26", want: 120.5},
+	}
+	for _, tt := range tests {
+		t.Run(tt.date, func(t *testing.T) {
+			date, _ := time.Parse(util.DateFormat, tt.date)
+			got := readings.interpolateValueAtDate(date)
+			assert.Equal(t, tt.want, got, "interpolated value is wrong")
+		})
+	}
+}
 
 func TestLastReadingBefore(t *testing.T) {
 	readings := MeterReadings{

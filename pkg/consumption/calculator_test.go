@@ -1,6 +1,7 @@
 package consumption
 
 import (
+	"fmt"
 	"github.com/fafeitsch/Horologium/pkg/domain"
 	"github.com/fafeitsch/Horologium/pkg/util"
 	"github.com/stretchr/testify/assert"
@@ -82,10 +83,32 @@ func TestCalculate_Simple(t *testing.T) {
 			params.Start = tt.start
 			params.End = *tt.end
 			costs, accumulatedConsumption := Costs(params)
-			consumption := Consumption(params)
+			consumption := params.Readings.Consumption(tt.start, *tt.end)
 			assert.Equal(t, tt.wantCosts, costs, "calculated costs not correct")
 			assert.Equal(t, tt.wantConsumption, consumption, "calculated consumption not correct")
 			assert.Equal(t, tt.wantConsumption, accumulatedConsumption, "accumulated calculated consumption not correct")
+		})
+	}
+}
+
+func TestMonthsBetween(t *testing.T) {
+	tests := []struct {
+		start string
+		end   string
+		want  int
+	}{
+		{start: "2020-05-02", end: "2020-05-03", want: 1},
+		{start: "2020-01-01", end: "2020-07-01", want: 6},
+		{start: "2020-01-01", end: "2020-07-02", want: 7},
+		{start: "2019-09-15", end: "2021-10-01", want: 25},
+		{start: "2019-11-23", end: "2020-02-22", want: 4},
+	}
+	for _, tt := range tests {
+		t.Run(fmt.Sprintf("start: %s, end: %s", tt.start, tt.end), func(t *testing.T) {
+			start, _ := time.Parse(util.DateFormat, tt.start)
+			end, _ := time.Parse(util.DateFormat, tt.end)
+			got := monthsBetween(start, end)
+			assert.Equal(t, tt.want, got, "months between two dates differ")
 		})
 	}
 }
