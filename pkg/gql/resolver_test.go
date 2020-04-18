@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/fafeitsch/Horologium/pkg/domain"
-	orm "github.com/fafeitsch/Horologium/pkg/persistance"
+	"github.com/fafeitsch/Horologium/pkg/util"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -40,21 +40,21 @@ func TestMutationResolver_CreatePricingPlan(t *testing.T) {
 	seriesService, planService, readingService := createMockServices()
 	series := domain.Series{Id: 27, Name: "Power"}
 	seriesService.On("QueryById", uint(27)).Return(&series, nil)
-	validFrom1, _ := time.Parse(orm.DateFormat, "2018-01-01")
-	validTo1, _ := time.Parse(orm.DateFormat, "2018-12-31")
+	validFrom1, _ := time.Parse(util.DateFormat, "2018-01-01")
+	validTo1, _ := time.Parse(util.DateFormat, "2018-12-31")
 	planService.On("Save").Return(677, nil)
 	resolver := NewResolver(seriesService, planService, readingService)
-	validToStr := validTo1.Format(orm.DateFormat)
+	validToStr := validTo1.Format(util.DateFormat)
 
 	t.Run("with both dates", func(t *testing.T) {
-		newPlan := NewPricingPlanInput{Name: "Power 2020", BasePrice: 40, UnitPrice: 23, ValidFrom: validFrom1.Format(orm.DateFormat), ValidTo: &validToStr, SeriesID: 27}
+		newPlan := NewPricingPlanInput{Name: "Power 2020", BasePrice: 40, UnitPrice: 23, ValidFrom: validFrom1.Format(util.DateFormat), ValidTo: &validToStr, SeriesID: 27}
 		got, err := resolver.Mutation().CreatePricingPlan(context.Background(), &newPlan)
 		assert.NoError(t, err, "no error expected")
 		plan := domain.PricingPlan{Id: 677, Name: "Power 2020", BasePrice: 40, UnitPrice: 23, ValidFrom: &validFrom1, ValidTo: &validTo1, Series: &series}
 		comparePlans(t, plan, got, "created plan")
 	})
 	t.Run("with only start date", func(t *testing.T) {
-		newPlan := NewPricingPlanInput{Name: "Power 2020", BasePrice: 40, UnitPrice: 23, ValidFrom: validFrom1.Format(orm.DateFormat), ValidTo: nil, SeriesID: 27}
+		newPlan := NewPricingPlanInput{Name: "Power 2020", BasePrice: 40, UnitPrice: 23, ValidFrom: validFrom1.Format(util.DateFormat), ValidTo: nil, SeriesID: 27}
 		got, err := resolver.Mutation().CreatePricingPlan(context.Background(), &newPlan)
 		assert.NoError(t, err, "no error expected")
 		plan := domain.PricingPlan{Id: 677, Name: "Power 2020", BasePrice: 40, UnitPrice: 23, ValidFrom: &validFrom1, ValidTo: nil, Series: &series}
@@ -68,12 +68,12 @@ func Test_mutationResolver_CreateMeterReading(t *testing.T) {
 		Id:   62,
 		Name: "Chocolate Consumption",
 	}
-	date, _ := time.Parse(orm.DateFormat, "2020-01-20")
+	date, _ := time.Parse(util.DateFormat, "2020-01-20")
 	seriesService.On("QueryById", uint(62)).Return(&series, nil)
 	readingService.On("Save").Return(82, nil)
 
 	newReading := MeterReadingInput{
-		Count: 53.2, Date: date.Format(orm.DateFormat), SeriesID: 62,
+		Count: 53.2, Date: date.Format(util.DateFormat), SeriesID: 62,
 	}
 	resolver := NewResolver(seriesService, planService, readingService)
 	got, err := resolver.Mutation().CreateMeterReading(context.Background(), &newReading)
@@ -83,7 +83,7 @@ func Test_mutationResolver_CreateMeterReading(t *testing.T) {
 }
 
 func compareMeterReadings(t *testing.T, expected domain.MeterReading, got *MeterReading, msg string) {
-	assert.Equal(t, expected.Date.Format(orm.DateFormat), got.Date, "date of %s is wrong", msg)
+	assert.Equal(t, expected.Date.Format(util.DateFormat), got.Date, "date of %s is wrong", msg)
 	assert.Equal(t, expected.Count, got.Count, "count of %s is wrong", msg)
 	assert.Equal(t, expected.Series.Id, uint(got.SeriesID), "seriesId of %s is wrong", msg)
 	assert.Equal(t, expected.Id, uint(got.ID), "id of %s is wrong", msg)
@@ -121,9 +121,9 @@ func TestQueryResolver_AllSeries(t *testing.T) {
 
 func TestQueryResolver_PricingPlans(t *testing.T) {
 	seriesService, planService, readingService := createMockServices()
-	validFrom1, _ := time.Parse(orm.DateFormat, "2018-01-01")
-	validTo1, _ := time.Parse(orm.DateFormat, "2018-12-31")
-	validFrom2, _ := time.Parse(orm.DateFormat, "2019-01-01")
+	validFrom1, _ := time.Parse(util.DateFormat, "2018-01-01")
+	validTo1, _ := time.Parse(util.DateFormat, "2018-12-31")
+	validFrom2, _ := time.Parse(util.DateFormat, "2019-01-01")
 	series := domain.Series{Id: 25, Name: "Power"}
 	plans := []domain.PricingPlan{
 		{Id: 5, Name: "Year 2018", BasePrice: 12, UnitPrice: 0.34, ValidFrom: &validFrom1, ValidTo: &validTo1, Series: &series},
@@ -145,10 +145,10 @@ func comparePlans(t *testing.T, p domain.PricingPlan, got *PricingPlan, msg stri
 	assert.Equal(t, p.Name, got.Name, "name of %s", msg)
 	assert.Equal(t, p.BasePrice, got.BasePrice, "base price of %s", msg)
 	assert.Equal(t, p.UnitPrice, got.UnitPrice, "unit price of %s", msg)
-	validFrom := p.ValidFrom.Format(orm.DateFormat)
+	validFrom := p.ValidFrom.Format(util.DateFormat)
 	assert.Equal(t, validFrom, got.ValidFrom, "validFrom of %s", msg)
 	if p.ValidTo != nil {
-		validTo := p.ValidTo.Format(orm.DateFormat)
+		validTo := p.ValidTo.Format(util.DateFormat)
 		assert.Equal(t, validTo, *got.ValidTo, "validTo of %s", msg)
 	} else {
 		assert.Nil(t, got.ValidTo, "validTo of %s", msg)

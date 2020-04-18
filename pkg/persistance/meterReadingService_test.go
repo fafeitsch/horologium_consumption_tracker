@@ -3,6 +3,7 @@ package orm
 import (
 	"fmt"
 	"github.com/fafeitsch/Horologium/pkg/domain"
+	"github.com/fafeitsch/Horologium/pkg/util"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
@@ -16,9 +17,9 @@ func TestMeterReadingServiceImpl_CRUD(t *testing.T) {
 	powerSeries := &domain.Series{Name: "Power"}
 	waterSeries := &domain.Series{Name: "Water"}
 
-	time1, _ := time.Parse(DateFormat, "2018-01-31")
-	time2, _ := time.Parse(DateFormat, "2018-02-28")
-	time3, _ := time.Parse(DateFormat, "2018-03-31")
+	time1, _ := time.Parse(util.DateFormat, "2018-01-31")
+	time2, _ := time.Parse(util.DateFormat, "2018-02-28")
+	time3, _ := time.Parse(util.DateFormat, "2018-03-31")
 	meter1 := domain.MeterReading{
 		Count:  1000,
 		Date:   time1,
@@ -85,12 +86,12 @@ func TestMeterReadingServiceImpl_QueryOpenInterval(t *testing.T) {
 	defer func() { _ = db.Close() }()
 	service := NewMeterReadingService(db)
 
-	april, _ := time.Parse(DateFormat, "2019-04-28")
-	may, _ := time.Parse(DateFormat, "2019-05-29")
-	june1, _ := time.Parse(DateFormat, "2019-06-10")
-	june2, _ := time.Parse(DateFormat, "2019-06-28")
-	july, _ := time.Parse(DateFormat, "2019-07-02")
-	august, _ := time.Parse(DateFormat, "2019-08-01")
+	april, _ := time.Parse(util.DateFormat, "2019-04-28")
+	may, _ := time.Parse(util.DateFormat, "2019-05-29")
+	june1, _ := time.Parse(util.DateFormat, "2019-06-10")
+	june2, _ := time.Parse(util.DateFormat, "2019-06-28")
+	july, _ := time.Parse(util.DateFormat, "2019-07-02")
+	august, _ := time.Parse(util.DateFormat, "2019-08-01")
 	dates := []time.Time{april, may, june1, june2, july, august}
 
 	water := domain.Series{Name: "Water"}
@@ -106,8 +107,8 @@ func TestMeterReadingServiceImpl_QueryOpenInterval(t *testing.T) {
 	require.Equal(t, 6, len(waterReadings), "the water readings were not saved correctly")
 	require.Equal(t, 6, len(powerReadings), "the power readings were not saved correctly")
 
-	firstJune, _ := time.Parse(DateFormat, "2019-06-01")
-	lastJune, _ := time.Parse(DateFormat, "2019-06-30")
+	firstJune, _ := time.Parse(util.DateFormat, "2019-06-01")
+	lastJune, _ := time.Parse(util.DateFormat, "2019-06-30")
 	got, err := service.QueryOpenInterval(water.Id, firstJune, lastJune)
 	require.NoError(t, err, "no error expected")
 	require.Equal(t, 4, len(got), "number of got readings not correct")

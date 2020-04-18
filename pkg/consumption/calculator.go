@@ -2,52 +2,58 @@ package consumption
 
 import (
 	"github.com/fafeitsch/Horologium/pkg/domain"
-	"math"
-	"sort"
 	"time"
 )
 
 type Parameters struct {
 	Start    time.Time
 	End      time.Time
-	readings []domain.MeterReading
+	readings domain.MeterReadings
 	plans    []domain.PricingPlan
 }
 
-func lastReadingBefore(date time.Time, readings []domain.MeterReading) domain.MeterReading {
-	sort.Slice(readings, func(i, j int) bool {
-		return readings[i].Date.Before(readings[j].Date)
-	})
-	index := 0
-	for index < len(readings) && (readings[index].Date.Equal(date) || readings[index].Date.Before(date)) {
-		index = index + 1
-	}
-	return readings[index-1]
-}
-
-func firstReadingAfter(date time.Time, readings []domain.MeterReading) domain.MeterReading {
-	sort.Slice(readings, func(i, j int) bool {
-		return readings[j].Date.Before(readings[i].Date)
-	})
-	index := 0
-	for index < len(readings) && (readings[index].Date.Equal(date) || readings[index].Date.After(date)) {
-		index = index + 1
-	}
-	return readings[index-1]
-}
+// TODO:
+// Validation-Method for Parameters:
+// * beginning of the first plan must be before Parameters.Start
+// * plans must be continous
+// * plans must not overlap
 
 func Consumption(params Parameters) float64 {
-	firstReading := lastReadingBefore(params.Start, params.readings)
-	lastReading := firstReadingAfter(params.End, params.readings)
-	differenceDays := math.Round(lastReading.Date.Sub(firstReading.Date).Hours() / 24)
-	slope := (lastReading.Count - firstReading.Count) / differenceDays
-	startDays := math.Round(params.Start.Sub(firstReading.Date).Hours() / 24)
-	endDays := math.Round(params.End.Sub(firstReading.Date).Hours() / 24)
-	valueStart := slope*startDays + firstReading.Count
-	valueEnd := slope*endDays + firstReading.Count
+	valueStart := params.readings.InterpolateValueAtDate(params.Start)
+	valueEnd := params.readings.InterpolateValueAtDate(params.End)
 	return valueEnd - valueStart
 }
 
 func Costs(params Parameters) float64 {
-	return 0
+	plans := params.plans
+	result := 0.0
+	index := 0
+	for index < len(plans) && plans[index].ValidTo != nil && plans[index].ValidTo.Before(params.Start) {
+		index = index + 1
+	}
+	check := 0.0
+	start := params.Start
+	for index < len(plans) && plans[index].ValidFrom.Before(params.End) {
+		plan := plans[index]
+		end := params.End
+		if plan.ValidTo != nil && plan.ValidTo.Before(end) {
+			end = (*plan.ValidTo).Add(24 * time.Hour)
+		}
+		consumption := Consumption(Parameters{Start: start, End: end, readings: params.readings})
+		check = check + consumption
+		result = result + consumption*plan.UnitPrice + plan.BasePrice*float64(monthsBetween(start, end))
+		if index < len(plans)-1 {
+			start = *plans[index+1].ValidFrom
+		}
+		index = index + 1
+	}
+	return result
+}
+
+//Returns the number of different months between the given times,
+//no matter whether they are contained completely or not. For example,
+//2019-30-4 and 2019-05-01 contain two months.
+func monthsBetween(start time.Time, end time.Time) int {
+	yearMonths := (start.Year() - end.Year()) * 12
+	return yearMonths + int(end.Month()-start.Month()+1)
 }

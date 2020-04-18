@@ -5,58 +5,32 @@ import (
 	"github.com/fafeitsch/Horologium/pkg/util"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
-func TestLastReadingBefore(t *testing.T) {
-	readings := []domain.MeterReading{
-		{Date: util.FormatDate(2019, 9, 12), Id: 5},
-		{Date: util.FormatDate(2019, 9, 23), Id: 6},
-		{Date: util.FormatDate(2019, 9, 27), Id: 7},
-		{Date: util.FormatDate(2019, 9, 30), Id: 8},
-	}
-	t.Run("simple", func(t *testing.T) {
-		got := lastReadingBefore(util.FormatDate(2019, 9, 26), readings)
-		assert.Equal(t, readings[1], got, "last reading calculated incorrectly")
-	})
-	t.Run("same day", func(t *testing.T) {
-		got := lastReadingBefore(util.FormatDate(2019, 9, 23), readings)
-		assert.Equal(t, readings[1], got, "last reading calculated incorrectly")
-	})
-	t.Run("all smaller", func(t *testing.T) {
-		got := lastReadingBefore(util.FormatDate(2019, 10, 1), readings)
-		assert.Equal(t, readings[3], got, "last reading calculated incorrectly")
-	})
-}
-
-func TestFirstReadingAfter(t *testing.T) {
-	readings := []domain.MeterReading{
-		{Date: util.FormatDate(2019, 9, 12), Id: 5},
-		{Date: util.FormatDate(2019, 9, 23), Id: 6},
-		{Date: util.FormatDate(2019, 9, 27), Id: 7},
-		{Date: util.FormatDate(2019, 9, 30), Id: 8},
-	}
-	cpy := make([]domain.MeterReading, len(readings))
-	copy(cpy, readings)
-	t.Run("simple", func(t *testing.T) {
-		got := firstReadingAfter(util.FormatDate(2019, 9, 17), cpy)
-		assert.Equal(t, readings[1], got, "last reading calculated incorrectly")
-	})
-	t.Run("same day", func(t *testing.T) {
-		got := firstReadingAfter(util.FormatDate(2019, 9, 23), cpy)
-		assert.Equal(t, readings[1], got, "last reading calculated incorrectly")
-	})
-	t.Run("all bigger", func(t *testing.T) {
-		got := firstReadingAfter(util.FormatDate(2019, 9, 1), cpy)
-		assert.Equal(t, readings[0], got, "last reading calculated incorrectly")
-	})
-}
-
 func TestCalculate_Simple(t *testing.T) {
-	plan := domain.PricingPlan{
+
+	plan1 := domain.PricingPlan{
 		ValidFrom: util.FormatDatePtr(2019, 1, 1),
-		ValidTo:   util.FormatDatePtr(2019, 12, 31),
+		ValidTo:   util.FormatDatePtr(2019, 7, 31),
 		BasePrice: 10.8,
 		UnitPrice: 2.3,
+	}
+	plan2 := domain.PricingPlan{
+		ValidFrom: util.FormatDatePtr(2019, 8, 1),
+		ValidTo:   util.FormatDatePtr(2019, 9, 30),
+		BasePrice: 11.2,
+		UnitPrice: 2.7,
+	}
+	plan3 := domain.PricingPlan{
+		ValidFrom: util.FormatDatePtr(2019, 10, 1),
+		ValidTo:   util.FormatDatePtr(2019, 12, 31),
+		BasePrice: 11.9,
+		UnitPrice: 3.4,
+	}
+	zeroReading := domain.MeterReading{
+		Count: 85,
+		Date:  util.FormatDate(2019, 1, 1),
 	}
 	firstReading := domain.MeterReading{
 		Count: 125,
@@ -66,14 +40,51 @@ func TestCalculate_Simple(t *testing.T) {
 		Count: 335,
 		Date:  util.FormatDate(2019, 6, 13),
 	}
-	params := Parameters{
-		Start:    util.FormatDate(2019, 4, 15),
-		End:      util.FormatDate(2019, 5, 31),
-		readings: []domain.MeterReading{firstReading, secondReading},
-		plans:    []domain.PricingPlan{plan},
+	thirdReading := domain.MeterReading{
+		Count: 400,
+		Date:  util.FormatDate(2019, 7, 1),
 	}
-	costs := Costs(params)
-	consumption := Consumption(params)
-	assert.Equal(t, 380.429518, costs, "calcuated costs not correct")
-	assert.Equal(t, 155.80645161290326, consumption, "calculated consumption not correct")
+	forthReading := domain.MeterReading{
+		Date:  util.FormatDate(2019, 10, 10),
+		Count: 652,
+	}
+	fifthReading := domain.MeterReading{
+		Count: 932,
+		Date:  util.FormatDate(2019, 12, 31),
+	}
+	params := Parameters{
+		readings: []domain.MeterReading{zeroReading, firstReading, secondReading, thirdReading, forthReading, fifthReading},
+		plans:    []domain.PricingPlan{plan1, plan2, plan3},
+	}
+	tests := []struct {
+		name            string
+		start           time.Time
+		end             *time.Time
+		wantCosts       float64
+		wantConsumption float64
+	}{
+		{
+			name:            "two months (simple)",
+			start:           util.FormatDate(2019, 4, 15),
+			end:             util.FormatDatePtr(2019, 5, 31),
+			wantCosts:       379.9548387096775,
+			wantConsumption: 155.80645161290326,
+		}, {
+			name:            "year",
+			start:           util.FormatDate(2019, 1, 1),
+			end:             util.FormatDatePtr(2019, 12, 31),
+			wantCosts:       2497.3801980198014,
+			wantConsumption: 847,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			params.Start = tt.start
+			params.End = *tt.end
+			costs := Costs(params)
+			consumption := Consumption(params)
+			assert.Equal(t, tt.wantCosts, costs, "calculated costs not correct")
+			assert.Equal(t, tt.wantConsumption, consumption, "calculated consumption not correct")
+		})
+	}
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/fafeitsch/Horologium/pkg/domain"
 	orm "github.com/fafeitsch/Horologium/pkg/persistance"
+	"github.com/fafeitsch/Horologium/pkg/util"
 	"time"
 ) // THIS CODE IS A STARTING POINT ONLY. IT WILL NOT BE UPDATED WITH SCHEMA CHANGES.
 
@@ -54,13 +55,13 @@ func (r *mutationResolver) DeleteSeries(ctx context.Context, id int) (int, error
 }
 
 func (r *mutationResolver) CreatePricingPlan(ctx context.Context, plan *NewPricingPlanInput) (*PricingPlan, error) {
-	start, err := time.Parse(orm.DateFormat, plan.ValidFrom)
+	start, err := time.Parse(util.DateFormat, plan.ValidFrom)
 	if err != nil {
 		return nil, fmt.Errorf("could not parse the validFrom date as RFC3339: %v", err)
 	}
 	var end *time.Time
 	if plan.ValidTo != nil {
-		tmp, err := time.Parse(orm.DateFormat, *plan.ValidTo)
+		tmp, err := time.Parse(util.DateFormat, *plan.ValidTo)
 		if err != nil {
 			return nil, fmt.Errorf("could not parse the validTo date as RFC3339: %v", err)
 		}
@@ -86,9 +87,9 @@ func (r *mutationResolver) CreatePricingPlan(ctx context.Context, plan *NewPrici
 }
 
 func (r *mutationResolver) CreateMeterReading(ctx context.Context, reading *MeterReadingInput) (*MeterReading, error) {
-	date, err := time.Parse(orm.DateFormat, reading.Date)
+	date, err := time.Parse(util.DateFormat, reading.Date)
 	if err != nil {
-		return nil, fmt.Errorf("could not parse date \"%s\" as \"%s\"", reading.Date, orm.DateFormat)
+		return nil, fmt.Errorf("could not parse date \"%s\" as \"%s\"", reading.Date, util.DateFormat)
 	}
 	series, err := r.seriesService.QueryById(uint(reading.SeriesID))
 	if err != nil {
