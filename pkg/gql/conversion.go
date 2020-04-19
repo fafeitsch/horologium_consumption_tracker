@@ -1,6 +1,7 @@
 package gql
 
 import (
+	"github.com/fafeitsch/Horologium/pkg/consumption"
 	"github.com/fafeitsch/Horologium/pkg/domain"
 	"github.com/fafeitsch/Horologium/pkg/util"
 )
@@ -46,5 +47,19 @@ func toQlMeterReading(reading *domain.MeterReading) *MeterReading {
 		Count:    float64(reading.Count),
 		Date:     date,
 		SeriesID: int(reading.Series.Id),
+	}
+}
+
+func toQlStatistics(stastistics *consumption.Statistics) *Statistics {
+	if stastistics == nil {
+		return nil
+	}
+	start := stastistics.ValidFrom.Format(util.DateFormat)
+	end := stastistics.ValidTo.Format(util.DateFormat)
+	return &Statistics{
+		ValidFrom:   start,
+		ValidTo:     end,
+		Costs:       stastistics.Costs,
+		Consumption: stastistics.Consumption,
 	}
 }

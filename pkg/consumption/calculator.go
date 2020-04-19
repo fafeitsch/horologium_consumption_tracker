@@ -1,7 +1,9 @@
 package consumption
 
 import (
+	"fmt"
 	"github.com/fafeitsch/Horologium/pkg/domain"
+	"github.com/fafeitsch/Horologium/pkg/util"
 	"time"
 )
 
@@ -17,6 +19,7 @@ type Parameters struct {
 // * beginning of the first plan must be before Parameters.Start
 // * Plans must be continous
 // * Plans must not overlap
+// * Plans have to start at the first of the month
 
 func Costs(params Parameters) (costs float64, totalConsumption float64) {
 	plans := params.Plans
@@ -54,4 +57,49 @@ func monthsBetween(start time.Time, end time.Time) int {
 		return months - 1
 	}
 	return months
+}
+
+type Statistics struct {
+	ValidFrom   time.Time
+	ValidTo     time.Time
+	Costs       float64
+	Consumption float64
+}
+
+func MonthlyCosts(params Parameters) []Statistics {
+	nextTime := func(date time.Time) time.Time {
+		addedStart := date.AddDate(0, 1, 0)
+		month := addedStart.Month()
+		year := addedStart.Year()
+		monthEnd, _ := time.Parse(util.DateFormat, fmt.Sprintf("%d-%02d-%02d", year, month, 1))
+		return monthEnd
+	}
+	return granularCosts(params, nextTime)
+}
+
+func granularCosts(params Parameters, nextTime func(date time.Time) time.Time) []Statistics {
+	result := make([]Statistics, 0, 0)
+	monthStart := params.Start
+	for monthStart.Before(params.End) {
+		monthEnd := nextTime(monthStart)
+		if params.End.Before(monthEnd) {
+			monthEnd = params.End
+		}
+		params := Parameters{
+			Start:    monthStart,
+			End:      monthEnd,
+			Readings: params.Readings,
+			Plans:    params.Plans,
+		}
+		costs, cons := Costs(params)
+		stats := Statistics{
+			ValidFrom:   monthStart,
+			ValidTo:     monthEnd,
+			Costs:       costs,
+			Consumption: cons,
+		}
+		result = append(result, stats)
+		monthStart = monthEnd
+	}
+	return result
 }

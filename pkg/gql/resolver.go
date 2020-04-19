@@ -151,7 +151,7 @@ func (r *queryResolver) MeterReadings(ctx context.Context, id int) ([]*MeterRead
 	return result, nil
 }
 
-func (r *queryResolver) Statistics(ctx context.Context, seriesId int, startString string, endString string, granularity Granularity) ([]*Statistics, error) {
+func (r *queryResolver) MonthlyStatistics(ctx context.Context, seriesId int, startString string, endString string) ([]*Statistics, error) {
 	readings, err := r.meterService.QueryForSeries(uint(seriesId))
 	if err != nil {
 		return []*Statistics{}, err
@@ -171,34 +171,16 @@ func (r *queryResolver) Statistics(ctx context.Context, seriesId int, startStrin
 	if start.After(end) {
 		return []*Statistics{}, fmt.Errorf("the start date \"%s\" is after the end date \"%s\"", startString, endString)
 	}
-	if granularity != GranularityMonthly {
-		return []*Statistics{}, fmt.Errorf("other granularity than monthly is currently not supported")
+	params := consumption.Parameters{
+		Start:    start,
+		End:      end,
+		Readings: readings,
+		Plans:    plans,
 	}
-	result := make([]*Statistics, 0, 0)
-	monthStart := start
-	for monthStart != end {
-		addedStart := monthStart.AddDate(0, 1, 0)
-		month := addedStart.Month()
-		year := addedStart.Year()
-		monthEnd := time.Date(year, month, 1, 0, 0, 0, 0, time.Local)
-		if end.Before(monthEnd) {
-			monthEnd = end
-		}
-		params := consumption.Parameters{
-			Start:    monthStart,
-			End:      monthEnd,
-			Readings: readings,
-			Plans:    plans,
-		}
-		costs, cons := consumption.Costs(params)
-		stats := &Statistics{
-			ValidFrom:   monthStart.Format(util.DateFormat),
-			ValidTo:     monthEnd.Format(util.DateFormat),
-			Costs:       costs,
-			Consumption: cons,
-		}
-		result = append(result, stats)
-		monthStart = monthEnd
+	stats := consumption.MonthlyCosts(params)
+	result := make([]*Statistics, 0, len(stats))
+	for _, stat := range stats {
+		result = append(result, toQlStatistics(&stat))
 	}
 	return result, nil
 }

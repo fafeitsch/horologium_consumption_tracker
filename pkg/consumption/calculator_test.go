@@ -9,8 +9,7 @@ import (
 	"time"
 )
 
-func TestCalculate_Simple(t *testing.T) {
-
+func testData() Parameters {
 	plan1 := domain.PricingPlan{
 		ValidFrom: util.FormatDatePtr(2019, 1, 1),
 		ValidTo:   util.FormatDatePtr(2019, 7, 31),
@@ -53,10 +52,14 @@ func TestCalculate_Simple(t *testing.T) {
 		Count: 932,
 		Date:  util.FormatDate(2019, 12, 31),
 	}
-	params := Parameters{
+	return Parameters{
 		Readings: []domain.MeterReading{zeroReading, firstReading, secondReading, thirdReading, forthReading, fifthReading},
 		Plans:    []domain.PricingPlan{plan1, plan2, plan3},
 	}
+}
+
+func TestCalculate_Simple(t *testing.T) {
+	params := testData()
 	tests := []struct {
 		name            string
 		start           time.Time
@@ -111,4 +114,40 @@ func TestMonthsBetween(t *testing.T) {
 			assert.Equal(t, tt.want, got, "months between two dates differ")
 		})
 	}
+}
+
+func TestMonthlyCosts(t *testing.T) {
+	params := testData()
+	params.Start, _ = time.Parse(util.DateFormat, "2019-01-01")
+	params.End, _ = time.Parse(util.DateFormat, "2019-03-24")
+	got := MonthlyCosts(params)
+	assert.Equal(t, 3, len(got), "there should be twelve months in the statistic")
+	wantJanuary := Statistics{
+		ValidFrom:   util.FormatDate(2019, 1, 1),
+		ValidTo:     util.FormatDate(2019, 2, 1),
+		Costs:       39.03762376237624,
+		Consumption: 12.277227722772281,
+	}
+	assertStats(t, wantJanuary, got[0], "January")
+	wantFebruary := Statistics{
+		ValidFrom:   util.FormatDate(2019, 2, 1),
+		ValidTo:     util.FormatDate(2019, 3, 1),
+		Costs:       36.304950495049496,
+		Consumption: 11.089108910891085,
+	}
+	assertStats(t, wantFebruary, got[1], "February")
+	wantMarch := Statistics{
+		ValidFrom:   util.FormatDate(2019, 3, 1),
+		ValidTo:     util.FormatDate(2019, 3, 24),
+		Costs:       31.750495049504952,
+		Consumption: 9.10891089108911,
+	}
+	assertStats(t, wantMarch, got[2], "March")
+}
+
+func assertStats(t *testing.T, want Statistics, got Statistics, msg string) {
+	assert.Equal(t, want.ValidFrom, got.ValidFrom, "valid_from of %s is not correct", msg)
+	assert.Equal(t, want.ValidTo, got.ValidTo, "valid_to of %s is not correct", msg)
+	assert.Equal(t, want.Consumption, got.Consumption, "consumption of %s is not correct", msg)
+	assert.Equal(t, want.Costs, got.Costs, "costs of %s is not correct", msg)
 }

@@ -2,6 +2,7 @@ package gql
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/fafeitsch/Horologium/pkg/domain"
 	"github.com/fafeitsch/Horologium/pkg/util"
@@ -180,6 +181,63 @@ func TestQueryResolver_MeterReadings(t *testing.T) {
 	require.Equal(t, len(readings), len(got), "number of got meter readings is not correct")
 	for index, gotReading := range got {
 		compareMeterReadings(t, readings[index], gotReading, fmt.Sprintf("reading at %d", index))
+	}
+}
+
+func TestQueryResolver_MonthlyStatisticsSuccess(t *testing.T) {
+	seriesService, planService, readingService := createMockServices()
+	plans := []domain.PricingPlan{{
+		Id:        66,
+		BasePrice: 10.8,
+		UnitPrice: 3.5,
+		ValidFrom: util.FormatDatePtr(2020, 6, 1),
+		ValidTo:   util.FormatDatePtr(2020, 12, 1),
+	}}
+	planService.On("QueryForSeries", uint(15)).Return(plans, nil)
+	reading1 := domain.MeterReading{
+		Count: 25.2,
+		Date:  util.FormatDate(2020, 8, 1),
+	}
+	reading2 := domain.MeterReading{
+		Count: 74.2,
+		Date:  util.FormatDate(2020, 10, 15),
+	}
+	readings := []domain.MeterReading{reading1, reading2}
+	readingService.On("QueryForSeries", uint(15)).Return(readings, nil)
+	resolver := NewResolver(seriesService, planService, readingService)
+	got, err := resolver.Query().MonthlyStatistics(context.Background(), 15, "2020-09-01", "2020-10-15")
+	require.NoError(t, err, "no error expected")
+	require.Equal(t, 2, len(got), "two statistics expected")
+	require.Equal(t, 19.599999999999994, got[0].Consumption, "consumption of first statistic is wrong")
+	require.Equal(t, 79.39999999999998, got[0].Costs, "costs of first statistic are wrong")
+	require.Equal(t, "2020-09-01", got[0].ValidFrom, "valid_from of first statistic is wrong")
+	require.Equal(t, "2020-10-01", got[0].ValidTo, "valid_to of first statistic is wrong")
+}
+
+func TestQueryResolver_MonthlyStatisticsErrors(t *testing.T) {
+	testcases := []struct {
+		start         string
+		end           string
+		planError     error
+		readingsError error
+		want          string
+	}{
+		{start: "2019-01-01", end: "2020-01-01", planError: errors.New("plans could not be loaded"), readingsError: nil, want: "plans could not be loaded"},
+		{start: "2019-01-01", end: "2020-01-01", planError: nil, readingsError: errors.New("readings could not be loaded"), want: "readings could not be loaded"},
+		{start: "nodate", end: "2020-01-01", planError: nil, readingsError: nil, want: "could not parse the start date \"nodate\": parsing time \"nodate\" as \"2006-01-02\": cannot parse \"nodate\" as \"2006\""},
+		{start: "2019-01-01", end: "nodate", planError: nil, readingsError: nil, want: "could not parse the end date \"nodate\": parsing time \"nodate\" as \"2006-01-02\": cannot parse \"nodate\" as \"2006\""},
+		{start: "2019-01-01", end: "2018-12-31", planError: nil, readingsError: nil, want: "the start date \"2019-01-01\" is after the end date \"2018-12-31\""},
+	}
+	for _, tt := range testcases {
+		t.Run(tt.want, func(t *testing.T) {
+			seriesService, planService, readingService := createMockServices()
+			planService.On("QueryForSeries", uint(25)).Return([]domain.PricingPlan{}, tt.planError)
+			readingService.On("QueryForSeries", uint(25)).Return([]domain.MeterReading{}, tt.readingsError)
+			resolver := NewResolver(seriesService, planService, readingService)
+			got, err := resolver.Query().MonthlyStatistics(context.Background(), 25, tt.start, tt.end)
+			assert.Equal(t, 0, len(got), "there should be no object returned")
+			assert.EqualError(t, err, tt.want, "the error message is wrong")
+		})
 	}
 }
 
