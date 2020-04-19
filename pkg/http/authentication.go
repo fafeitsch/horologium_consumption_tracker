@@ -18,8 +18,8 @@ type customClaim struct {
 }
 
 type authenticationInterceptor struct {
-	jwtKey         []byte
-	noAuthRequired map[string]bool
+	jwtKey       []byte
+	authRequired map[string]bool
 }
 
 func (a *authenticationInterceptor) getJwtKey() []byte {
@@ -37,7 +37,7 @@ func (a *authenticationInterceptor) Handler(next http.Handler) http.Handler {
 		}
 
 		requestPath := r.URL.Path
-		if _, ok := a.noAuthRequired[requestPath]; ok || true {
+		if _, ok := a.authRequired[requestPath]; !ok {
 			next.ServeHTTP(w, r)
 			return
 		}

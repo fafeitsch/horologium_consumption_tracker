@@ -122,8 +122,8 @@ func TestAuthenticationInterceptorImpl_validateToken(t *testing.T) {
 func TestAuthenticationInterceptorImpl_Handler(t *testing.T) {
 	assert := stretch.New(t)
 	middleware := authenticationInterceptor{
-		jwtKey:         []byte("s3cr3tPassw0rd4You"),
-		noAuthRequired: map[string]bool{"/api/unprotected": true},
+		jwtKey:       []byte("s3cr3tPassw0rd4You"),
+		authRequired: map[string]bool{"/api/protected": true},
 	}
 	tests := []struct {
 		name        string

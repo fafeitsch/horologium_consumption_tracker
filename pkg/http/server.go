@@ -46,8 +46,8 @@ func NewServer(config *ServerConfig, apiHandler func(http.ResponseWriter, *http.
 
 	router := mux.NewRouter()
 	middleware := authenticationInterceptor{
-		jwtKey:         config.JwtKey,
-		noAuthRequired: map[string]bool{"/login": true, "/": true},
+		jwtKey:       config.JwtKey,
+		authRequired: map[string]bool{"/api": true},
 	}
 	router.Use(middleware.Handler)
 
