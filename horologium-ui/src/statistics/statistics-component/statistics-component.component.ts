@@ -9,10 +9,10 @@ import {StatisticsService} from '../statistics.service';
 })
 export class StatisticsComponentComponent implements OnInit {
 
-  @Input() private series: Series;
-  private startDate: Date;
-  private endDate: Date;
-  private currentStats: Statistics[];
+  @Input() public series: Series;
+  public startDate: Date;
+  public endDate: Date;
+  public currentStats: Statistics[];
 
   constructor(private statisticService: StatisticsService) {
   }
@@ -20,7 +20,7 @@ export class StatisticsComponentComponent implements OnInit {
   ngOnInit() {
   }
 
-  private load(): void {
+  public load(): void {
     this.statisticService.getMonthlyStatistics(this.series.id, this.startDate, this.endDate).subscribe((stats: Statistics[]) => this.currentStats = stats);
   }
 

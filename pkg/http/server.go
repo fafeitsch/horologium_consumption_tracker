@@ -47,13 +47,14 @@ func NewServer(config *ServerConfig, apiHandler func(http.ResponseWriter, *http.
 	router := mux.NewRouter()
 	middleware := authenticationInterceptor{
 		jwtKey:         config.JwtKey,
-		noAuthRequired: map[string]bool{"/login": true},
+		noAuthRequired: map[string]bool{"/login": true, "/": true},
 	}
 	router.Use(middleware.Handler)
 
 	authenticator := jwtAuthenticator{jwtKey: config.JwtKey, accountProvider: config.AccountProvider}
 	router.HandleFunc("/api", apiHandler).Methods("POST", "OPTIONS")
 	router.HandleFunc("/login", authenticator.Handle).Methods("GET", "OPTIONS")
+	router.PathPrefix("/{_:.*}").Handler(http.FileServer(http.Dir("horologium-ui/dist/horologium-ui")))
 
 	return &serverImpl{
 		config: config,

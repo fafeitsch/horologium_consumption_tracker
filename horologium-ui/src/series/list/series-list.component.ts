@@ -10,14 +10,14 @@ import {faPlay, faHeartbeat} from '@fortawesome/free-solid-svg-icons';
 export class SeriesListComponent implements OnInit {
 
   private faHeartbeat = faHeartbeat;
-  @Input() private series: Series[];
-  @Output() private selectionChanged = new EventEmitter<Series>();
+  @Input() public series: Series[];
+  @Output() public selectionChanged = new EventEmitter<Series>();
   constructor() { }
 
   ngOnInit() {
   }
 
-  private seriesSelectionChanged(series: Series): void {
+  public seriesSelectionChanged(series: Series): void {
     this.selectionChanged.emit(series);
   }
 }

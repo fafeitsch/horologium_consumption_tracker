@@ -18,12 +18,12 @@ import {MeterReadingService} from '../meterReading/meter-reading.service';
 export class DashboardComponent implements OnInit, PricingPlanServiceListener, MeterReadingServiceListener {
 
   // noinspection JSMismatchedCollectionQueryUpdate
-  private series: Series[];
-  private selectedSeries: Series;
-  private pricingPlans: Plan[];
-  private meterReadings: MeterReading[];
-  private savePlan: (plan: Plan) => Observable<Plan>;
-  private saveMeterReading: (reading: MeterReading) => Observable<MeterReading>;
+  public series: Series[];
+  public selectedSeries: Series;
+  public pricingPlans: Plan[];
+  public meterReadings: MeterReading[];
+  public savePlan: (plan: Plan) => Observable<Plan>;
+  public saveMeterReading: (reading: MeterReading) => Observable<MeterReading>;
 
   constructor(private seriesService: SeriesService,
               private planService: PricingPlanService,
@@ -50,7 +50,7 @@ export class DashboardComponent implements OnInit, PricingPlanServiceListener, M
     });
   }
 
-  private selectedSeriesChanged(series: Series): void {
+  public selectedSeriesChanged(series: Series): void {
     this.selectedSeries = series;
     this.planService.queryPricingPlans(series.id).subscribe(resp => {
       this.pricingPlans = resp;

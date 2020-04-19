@@ -10,9 +10,9 @@ import {MeterReading} from '../meter-reading';
 })
 export class MeterReadingEditorComponent implements OnInit {
 
-  private date: Date;
-  private count: number;
-  private validityResult: boolean;
+  public date: Date;
+  public count: number;
+  public validityResult: boolean;
 
   constructor(
     private dialogRef: MatDialogRef<MeterReadingEditorComponent>,
@@ -30,7 +30,7 @@ export class MeterReadingEditorComponent implements OnInit {
     return reading;
   }
 
-  private saveClicked(): void {
+  public saveClicked(): void {
     const reading: MeterReading = this.getMeterReading();
     this.data.savePressed(reading).subscribe((result: Plan) => {
       this.validityResult = null;

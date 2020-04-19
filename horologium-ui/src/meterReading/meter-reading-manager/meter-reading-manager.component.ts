@@ -14,9 +14,9 @@ import {Observable} from 'rxjs';
 })
 export class MeterReadingManagerComponent implements OnInit {
 
-  private plusIcon = faPlus;
-  @Input() meterReadings: MeterReading[];
-  @Input() private saveMeterReading: (reading: MeterReading) => Observable<MeterReading>;
+  public plusIcon = faPlus;
+  @Input() public meterReadings: MeterReading[];
+  @Input() public saveMeterReading: (reading: MeterReading) => Observable<MeterReading>;
 
   constructor(private dialog: MatDialog) {
   }

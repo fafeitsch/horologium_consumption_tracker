@@ -12,9 +12,9 @@ import {Observable} from 'rxjs';
 })
 export class PricingPlanManagerComponent implements OnInit {
 
-  private plusIcon = faPlus;
-  @Input() private pricingPlans: Plan[];
-  @Input() private savePlan: (plan: Plan) => Observable<Plan>;
+  public plusIcon = faPlus;
+  @Input() public pricingPlans: Plan[];
+  @Input() public savePlan: (plan: Plan) => Observable<Plan>;
 
   constructor(private dialog: MatDialog) {
   }

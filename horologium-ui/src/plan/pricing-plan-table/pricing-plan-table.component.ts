@@ -8,8 +8,8 @@ import {Plan} from '../plan';
 })
 export class PricingPlanTableComponent implements OnInit {
 
-  @Input() private pricingPlans: Plan[];
-  private displayedColumns: string[] = ['name', 'basePrice', 'unitPrice', 'validFrom', 'validTo'];
+  @Input() public pricingPlans: Plan[];
+  public displayedColumns: string[] = ['name', 'basePrice', 'unitPrice', 'validFrom', 'validTo'];
 
   constructor() {
   }

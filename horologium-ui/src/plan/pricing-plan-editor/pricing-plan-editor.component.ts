@@ -9,16 +9,16 @@ import {Plan} from '../plan';
 })
 export class PricingPlanEditorComponent implements OnInit {
 
-  private planName: string;
-  private basePrice: number;
-  private unitPrice: number;
-  private validFrom: Date;
-  private validTo: Date;
-  private validityResult: string;
+  public planName: string;
+  public basePrice: number;
+  public unitPrice: number;
+  public validFrom: Date;
+  public validTo: Date;
+  public validityResult: string;
 
   constructor(
-    private dialogRef: MatDialogRef<PricingPlanEditorComponent>,
-    @Inject(MAT_DIALOG_DATA) private data: any) {
+    public dialogRef: MatDialogRef<PricingPlanEditorComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any) {
   }
 
   ngOnInit() {
@@ -35,7 +35,7 @@ export class PricingPlanEditorComponent implements OnInit {
     return plan;
   }
 
-  private saveClicked(): void {
+  public saveClicked(): void {
     const plan: Plan = this.getPlan();
     this.data.savePressed(plan).subscribe((result: Plan) => {
       this.validityResult = null;

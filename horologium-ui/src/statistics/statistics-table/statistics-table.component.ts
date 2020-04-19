@@ -8,7 +8,7 @@ import {Component, Input, OnInit} from '@angular/core';
 export class StatisticsTableComponent implements OnInit {
 
   @Input() statistics: Statistics[];
-  private displayedColumns: string[] = ['validFrom', 'validTo', 'consumption', 'costs'];
+  public displayedColumns: string[] = ['validFrom', 'validTo', 'consumption', 'costs'];
 
   constructor() { }
 

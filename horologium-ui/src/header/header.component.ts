@@ -9,10 +9,10 @@ import {LoginService} from '../login/login.service';
 })
 export class HeaderComponent implements OnInit, LoginObserver {
 
-  private loggedInAs: string;
-  private loggedIn: boolean;
+  public loggedInAs: string;
+  public loggedIn: boolean;
 
-  constructor(private loginService: LoginService) {
+  constructor(public loginService: LoginService) {
     loginService.registerObserver(this);
   }
 

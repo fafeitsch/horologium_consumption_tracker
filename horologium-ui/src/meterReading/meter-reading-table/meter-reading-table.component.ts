@@ -9,8 +9,8 @@ import {MeterReading} from '../meter-reading';
 })
 export class MeterReadingTableComponent implements OnInit {
 
-  @Input() private meterReadings: MeterReading;
-  private displayedColumns: string[] = ['date', 'count'];
+  @Input() public meterReadings: MeterReading;
+  public displayedColumns: string[] = ['date', 'count'];
 
   constructor() {
   }
