@@ -31,6 +31,8 @@ import {MY_DATE_FORMATS} from './MyDateAdapter';
 import { MeterReadingManagerComponent } from '../meterReading/meter-reading-manager/meter-reading-manager.component';
 import { MeterReadingTableComponent } from '../meterReading/meter-reading-table/meter-reading-table.component';
 import { MeterReadingEditorComponent } from '../meterReading/meter-reading-editor/meter-reading-editor.component';
+import { StatisticsComponentComponent } from '../statistics/statistics-component/statistics-component.component';
+import { StatisticsTableComponent } from '../statistics/statistics-table/statistics-table.component';
 
 @NgModule({
   declarations: [
@@ -45,6 +47,8 @@ import { MeterReadingEditorComponent } from '../meterReading/meter-reading-edito
     MeterReadingManagerComponent,
     MeterReadingTableComponent,
     MeterReadingEditorComponent,
+    StatisticsComponentComponent,
+    StatisticsTableComponent,
   ],
   imports: [
     BrowserModule,

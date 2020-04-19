@@ -10,6 +10,9 @@
       <mat-tab label="Readings">
         <app-meter-reading-manager [meterReadings]="meterReadings" [saveMeterReading]="saveMeterReading"></app-meter-reading-manager>
       </mat-tab>
+      <mat-tab label="Statistics">
+        <app-statistics-component [series]="selectedSeries"></app-statistics-component>
+      </mat-tab>
     </mat-tab-group>
   </mat-sidenav-content>
 </mat-sidenav-container>

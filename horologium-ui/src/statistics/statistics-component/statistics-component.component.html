@@ -1,0 +1,20 @@
+<div class="tools">
+  <form #myForm="ngForm">
+    <div class="form-row">
+      <mat-form-field>
+        <input matInput [matDatepicker]="startPicker" placeholder="Start" [(ngModel)]="startDate" name="startDate"
+               ngDefaultControl required/>
+        <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+        <mat-datepicker #startPicker [(ngModel)]="startDate" name="startDate" ngDefaultControl></mat-datepicker>
+      </mat-form-field>
+      <mat-form-field>
+        <input matInput [matDatepicker]="endPicker" placeholder="End" [(ngModel)]="endDate" name="date" ngDefaultControl
+               required/>
+        <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+        <mat-datepicker #endPicker [(ngModel)]="endDate" name="date" ngDefaultControl></mat-datepicker>
+      </mat-form-field>
+      <button mat-button color="primary" (click)="load()">Load</button>
+    </div>
+  </form>
+</div>
+<app-statistics-table [statistics]="currentStats" ></app-statistics-table>
