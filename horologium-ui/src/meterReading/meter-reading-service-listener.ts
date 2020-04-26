@@ -1,5 +1,6 @@
 import {MeterReading} from './meter-reading';
 
 export interface MeterReadingServiceListener {
-    meterReadingAdded(meterRading: MeterReading): void;
+    meterReadingAdded(meterReading: MeterReading): void;
+    meterReadingChanged(meterReading: MeterReading): void;
 }

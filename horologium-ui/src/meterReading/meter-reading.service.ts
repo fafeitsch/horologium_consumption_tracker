@@ -7,6 +7,7 @@ import {MeterReading} from './meter-reading';
 import {Apollo} from 'apollo-angular';
 import {Plan} from '../plan/plan';
 import * as moment from 'moment';
+import {MutationOptions} from 'apollo-client';
 
 @Injectable({
   providedIn: 'root'
@@ -36,9 +37,39 @@ export class MeterReadingService {
 
   saveMeterReading(meterReading: MeterReading): Observable<MeterReading> {
     const from = moment(meterReading.date).format('YYYY-MM-DD');
-    return this.apollo.mutate({
+    let mutation;
+    if (meterReading.id) {
+      mutation = this.getMutationForExistingReading(meterReading);
+      return this.apollo.mutate(mutation).pipe(map(response => {
+          const modifiedReading: MeterReading = (response.data as any).modifyMeterReading;
+          if (modifiedReading) {
+            for (const listener of this.listeners) {
+              listener.meterReadingChanged(modifiedReading);
+            }
+          }
+          return modifiedReading;
+        }
+      ));
+    } else {
+      mutation = this.getMutationForNewReading(meterReading);
+      return this.apollo.mutate(mutation).pipe(map(response => {
+          const createdReading: MeterReading = (response.data as any).createMeterReading;
+          if (createdReading) {
+            for (const listener of this.listeners) {
+              listener.meterReadingAdded(createdReading);
+            }
+          }
+          return createdReading;
+        }
+      ));
+    }
+  }
+
+  private getMutationForNewReading(meterReading: MeterReading): MutationOptions {
+    const from = moment(meterReading.date).format('YYYY-MM-DD');
+    return {
       mutation: gql`
-        mutation create($readingObj: MeterReadingInput){
+        mutation create($readingObj: MeterReadingInput!){
           createMeterReading(reading: $readingObj){id, seriesId, date, count}
         }`,
       variables: {
@@ -49,15 +80,24 @@ export class MeterReadingService {
         }
       },
       errorPolicy: 'all'
-    }).pipe(map(response => {
-        const createdReading: MeterReading = (response.data as any).createMeterReading;
-        if (createdReading) {
-          for (const listener of this.listeners) {
-            listener.meterReadingAdded(createdReading);
-          }
-        }
-        return createdReading;
-      }
-    ));
+    };
+  }
+
+  private getMutationForExistingReading(meterReading: MeterReading): MutationOptions {
+    const from = moment(meterReading.date).format('YYYY-MM-DD');
+    return {
+      mutation: gql`
+        mutation modify($id: Int!, $readingObj: MeterReadingChange!){
+          modifyMeterReading(id: $id, reading: $readingObj){id, seriesId, date, count}
+        }`,
+      variables: {
+        readingObj: {
+          count: meterReading.count,
+          date: from,
+        },
+        id: meterReading.id
+      },
+      errorPolicy: 'all'
+    };
   }
 }

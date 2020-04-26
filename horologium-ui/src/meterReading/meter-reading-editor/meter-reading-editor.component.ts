@@ -20,19 +20,33 @@ export class MeterReadingEditorComponent implements OnInit {
   }
 
   ngOnInit() {
-
+    console.log(this.data)
+    if (this.data.existing) {
+      this.count = this.data.existing.count;
+      this.date = this.data.existing.date;
+    }
   }
 
-  public getMeterReading(): MeterReading {
-    const reading: MeterReading = new MeterReading();
-    reading.count = this.count;
-    reading.date = this.date;
-    return reading;
+  private getMeterReading(): MeterReading {
+    let reading: MeterReading;
+    if (this.data.existing) {
+      reading = this.data.existing;
+      reading.count = this.count;
+      reading.date = this.date;
+      return reading;
+    } else {
+      return {
+        id: undefined,
+        count: this.count,
+        date: this.date,
+        seriesId: undefined,
+      };
+    }
   }
 
   public saveClicked(): void {
     const reading: MeterReading = this.getMeterReading();
-    this.data.savePressed(reading).subscribe((result: Plan) => {
+    this.data.savePressed(reading).subscribe((result: MeterReading) => {
       this.validityResult = null;
       this.dialogRef.close();
     }, error => {

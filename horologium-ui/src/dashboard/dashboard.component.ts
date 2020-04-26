@@ -79,4 +79,7 @@ export class DashboardComponent implements OnInit, PricingPlanServiceListener, M
       this.selectedSeriesChanged(this.selectedSeries);
     }
   }
+
+  meterReadingChanged(meterReading: MeterReading): void {
+  }
 }
