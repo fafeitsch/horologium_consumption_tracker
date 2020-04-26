@@ -25,7 +25,7 @@ func Costs(params Parameters) (costs float64, totalConsumption float64) {
 	plans := params.Plans
 	costs = 0.0
 	index := 0
-	for index < len(plans) && plans[index].ValidTo != nil && plans[index].ValidTo.Before(params.Start) {
+	for index < len(plans) && plans[index].ValidTo != nil && (plans[index].ValidTo.Before(params.Start) || plans[index].ValidTo.Equal(params.Start)) {
 		index = index + 1
 	}
 	totalConsumption = 0.0

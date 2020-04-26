@@ -10,6 +10,12 @@ import (
 )
 
 func testData() Parameters {
+	plan0 := domain.PricingPlan{
+		ValidFrom: util.FormatDatePtr(2018, 1, 1),
+		ValidTo:   util.FormatDatePtr(2019, 1, 1),
+		BasePrice: 100,
+		UnitPrice: 100,
+	}
 	plan1 := domain.PricingPlan{
 		ValidFrom: util.FormatDatePtr(2019, 1, 1),
 		ValidTo:   util.FormatDatePtr(2019, 7, 31),
@@ -54,7 +60,7 @@ func testData() Parameters {
 	}
 	return Parameters{
 		Readings: []domain.MeterReading{zeroReading, firstReading, secondReading, thirdReading, forthReading, fifthReading},
-		Plans:    []domain.PricingPlan{plan1, plan2, plan3},
+		Plans:    []domain.PricingPlan{plan0, plan1, plan2, plan3},
 	}
 }
 

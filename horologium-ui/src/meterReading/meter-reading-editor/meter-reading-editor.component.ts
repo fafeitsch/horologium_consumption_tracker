@@ -20,7 +20,6 @@ export class MeterReadingEditorComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log(this.data)
     if (this.data.existing) {
       this.count = this.data.existing.count;
       this.date = this.data.existing.date;
