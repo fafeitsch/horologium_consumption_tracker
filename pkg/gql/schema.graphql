@@ -60,5 +60,6 @@ type Mutation {
   createSeries(series: NewSeriesInput!): Series!
   deleteSeries(id: Int!): Int!
   createPricingPlan(plan: NewPricingPlanInput): PricingPlan!
-  createMeterReading(reading: MeterReadingInput): MeterReading!
+  createMeterReading(reading: MeterReadingInput!): MeterReading!
+  modifyMeterReading(id: Int!, reading: MeterReadingInput!): MeterReading!
 }

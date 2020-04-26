@@ -13,6 +13,7 @@ type MeterReadingService interface {
 	Delete(uint) error
 	QueryForSeries(uint) ([]domain.MeterReading, error)
 	QueryOpenInterval(uint, time.Time, time.Time) ([]domain.MeterReading, error)
+	QueryById(uint) (domain.MeterReading, error)
 }
 
 func NewMeterReadingService(db *gorm.DB) MeterReadingService {
@@ -84,4 +85,13 @@ func (m *MeterReadingServiceImpl) QueryOpenInterval(seriesId uint, start time.Ti
 		resultSet = append(resultSet, last.toDomainMeterReadingEntity())
 	}
 	return resultSet, nil
+}
+
+func (m *MeterReadingServiceImpl) QueryById(u uint) (domain.MeterReading, error) {
+	reading := meterReadingEntity{}
+	err := m.db.Where("id = ?", u).First(&reading).Error
+	if err != nil {
+		return reading.toDomainMeterReadingEntity(), fmt.Errorf("could not query meter reading with id %d: %v", u, err)
+	}
+	return reading.toDomainMeterReadingEntity(), nil
 }

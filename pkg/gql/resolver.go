@@ -87,7 +87,7 @@ func (r *mutationResolver) CreatePricingPlan(ctx context.Context, plan *NewPrici
 	return toQLPricingPlan(&newPlan), nil
 }
 
-func (r *mutationResolver) CreateMeterReading(ctx context.Context, reading *MeterReadingInput) (*MeterReading, error) {
+func (r *mutationResolver) CreateMeterReading(ctx context.Context, reading MeterReadingInput) (*MeterReading, error) {
 	date, err := time.Parse(util.DateFormat, reading.Date)
 	if err != nil {
 		return nil, fmt.Errorf("could not parse date \"%s\" as \"%s\"", reading.Date, util.DateFormat)
@@ -106,6 +106,10 @@ func (r *mutationResolver) CreateMeterReading(ctx context.Context, reading *Mete
 		return nil, fmt.Errorf("the meter reading could not be saved: %v", err)
 	}
 	return toQlMeterReading(&newReading), nil
+}
+
+func (r *mutationResolver) ModifyMeterReading(ctx context.Context, id int, input MeterReadingInput) (*MeterReading, error) {
+	return nil, fmt.Errorf("not yet implemented")
 }
 
 type queryResolver struct{ *resolverImpl }

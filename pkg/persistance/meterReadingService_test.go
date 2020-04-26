@@ -123,3 +123,27 @@ func TestMeterReadingServiceImpl_QueryOpenInterval(t *testing.T) {
 		compareMeterReadings(t, want, got[index], fmt.Sprintf("meter reading at index %d", index))
 	}
 }
+
+func TestMeterReadingServiceImpl_QueryById(t *testing.T) {
+	db, _ := CreateInMemoryDb()
+	service := NewMeterReadingService(db)
+	series := domain.Series{Name: "Test Series"}
+	r1 := domain.MeterReading{Count: 666, Date: util.FormatDate(2020, 4, 26), Series: &series}
+	r2 := domain.MeterReading{Count: 777, Date: util.FormatDate(2020, 6, 26), Series: &series}
+	_ = service.Save(&r1)
+	_ = service.Save(&r2)
+	t.Run("Query by Id 1", func(t *testing.T) {
+		queried1, err := service.QueryById(r1.Id)
+		require.NoError(t, err, "no error expected by query")
+		assert.Equal(t, r1, queried1, "got meter reading differs from wanted")
+	})
+	t.Run("Query by Id 2", func(t *testing.T) {
+		queried2, err := service.QueryById(r2.Id)
+		require.NoError(t, err, "no error expected while querying")
+		assert.Equal(t, r2, queried2, "got meter reading differs from wanted")
+	})
+	t.Run("Id not found", func(t *testing.T) {
+		_, err := service.QueryById(uint(55))
+		require.EqualError(t, err, "could not query meter reading with id 55: record not found", "error message is wrong")
+	})
+}

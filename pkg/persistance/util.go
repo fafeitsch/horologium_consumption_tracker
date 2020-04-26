@@ -1,6 +1,7 @@
 package orm
 
 import (
+	"fmt"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"strings"
@@ -36,7 +37,7 @@ func ConnectToFileDb(file string) (*gorm.DB, error) {
 	configureTableNameHandler()
 	db, err := gorm.Open("sqlite3", file)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("could not load database from %s: %v", file, err)
 	}
 	db, err = configureDatabase(db, err)
 	return db, err
