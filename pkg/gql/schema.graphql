@@ -56,10 +56,15 @@ input MeterReadingInput{
   seriesId: Int!
 }
 
+input MeterReadingChange{
+  count: Float!
+  date: Date!
+}
+
 type Mutation {
   createSeries(series: NewSeriesInput!): Series!
   deleteSeries(id: Int!): Int!
   createPricingPlan(plan: NewPricingPlanInput): PricingPlan!
   createMeterReading(reading: MeterReadingInput!): MeterReading!
-  modifyMeterReading(id: Int!, reading: MeterReadingInput!): MeterReading!
+  modifyMeterReading(id: Int!, reading: MeterReadingChange!): MeterReading!
 }

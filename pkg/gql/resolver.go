@@ -108,8 +108,19 @@ func (r *mutationResolver) CreateMeterReading(ctx context.Context, reading Meter
 	return toQlMeterReading(&newReading), nil
 }
 
-func (r *mutationResolver) ModifyMeterReading(ctx context.Context, id int, input MeterReadingInput) (*MeterReading, error) {
-	return nil, fmt.Errorf("not yet implemented")
+func (r *mutationResolver) ModifyMeterReading(ctx context.Context, id int, input MeterReadingChange) (*MeterReading, error) {
+	existing, err := r.meterService.QueryById(uint(id))
+	if err != nil {
+		return nil, fmt.Errorf("could not find meter reading with id %d: %v", id, err)
+	}
+	date, err := time.Parse(util.DateFormat, input.Date)
+	if err != nil {
+		return nil, fmt.Errorf("could not format date: %v", err)
+	}
+	existing.Date = date
+	existing.Count = input.Count
+	err = r.meterService.Save(existing)
+	return toQlMeterReading(existing), err
 }
 
 type queryResolver struct{ *resolverImpl }

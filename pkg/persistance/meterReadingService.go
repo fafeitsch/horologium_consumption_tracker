@@ -13,7 +13,7 @@ type MeterReadingService interface {
 	Delete(uint) error
 	QueryForSeries(uint) ([]domain.MeterReading, error)
 	QueryOpenInterval(uint, time.Time, time.Time) ([]domain.MeterReading, error)
-	QueryById(uint) (domain.MeterReading, error)
+	QueryById(uint) (*domain.MeterReading, error)
 }
 
 func NewMeterReadingService(db *gorm.DB) MeterReadingService {
@@ -25,6 +25,9 @@ type MeterReadingServiceImpl struct {
 }
 
 func (m *MeterReadingServiceImpl) Save(reading *domain.MeterReading) error {
+	if reading.Series == nil {
+		return errors.New("cannot save meter reading without series (series is nil)")
+	}
 	entity := toMeterReadingEntity(*reading)
 	err := m.db.Save(&entity).Error
 	reading.Id = entity.Id
@@ -87,11 +90,12 @@ func (m *MeterReadingServiceImpl) QueryOpenInterval(seriesId uint, start time.Ti
 	return resultSet, nil
 }
 
-func (m *MeterReadingServiceImpl) QueryById(u uint) (domain.MeterReading, error) {
+func (m *MeterReadingServiceImpl) QueryById(u uint) (*domain.MeterReading, error) {
 	reading := meterReadingEntity{}
 	err := m.db.Where("id = ?", u).First(&reading).Error
 	if err != nil {
-		return reading.toDomainMeterReadingEntity(), fmt.Errorf("could not query meter reading with id %d: %v", u, err)
+		return nil, fmt.Errorf("could not query meter reading with id %d: %v", u, err)
 	}
-	return reading.toDomainMeterReadingEntity(), nil
+	converted := reading.toDomainMeterReadingEntity()
+	return &converted, nil
 }

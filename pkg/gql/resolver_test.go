@@ -77,7 +77,7 @@ func Test_mutationResolver_CreateMeterReading(t *testing.T) {
 		Count: 53.2, Date: date.Format(util.DateFormat), SeriesID: 62,
 	}
 	resolver := NewResolver(seriesService, planService, readingService)
-	got, err := resolver.Mutation().CreateMeterReading(context.Background(), &newReading)
+	got, err := resolver.Mutation().CreateMeterReading(context.Background(), newReading)
 	assert.NoError(t, err, "no error expected")
 	reading := domain.MeterReading{Id: 82, Date: date, Series: &series, Count: 53.2}
 	compareMeterReadings(t, reading, got, "created reading")
@@ -88,6 +88,38 @@ func compareMeterReadings(t *testing.T, expected domain.MeterReading, got *Meter
 	assert.Equal(t, expected.Count, got.Count, "count of %s is wrong", msg)
 	assert.Equal(t, expected.Series.Id, uint(got.SeriesID), "seriesId of %s is wrong", msg)
 	assert.Equal(t, expected.Id, uint(got.ID), "id of %s is wrong", msg)
+}
+
+func TestMutationResolver_CreateMeterReading(t *testing.T) {
+	seriesService, planService, readingService := createMockServices()
+	resolver := NewResolver(seriesService, planService, readingService)
+	series := domain.Series{Id: 5}
+	reading := domain.MeterReading{Id: 77, Date: util.FormatDate(2019, 9, 23), Count: 242, Series: &series}
+	readingService.On("QueryById", reading.Id).Return(&reading, nil)
+	readingService.On("Save").Return(int(reading.Id), nil)
+	readingService.On("QueryById", uint(34)).Return(nil, fmt.Errorf("not found"))
+	t.Run("success", func(t *testing.T) {
+		change := MeterReadingChange{
+			Count: 700,
+			Date:  "2019-10-23",
+		}
+		got, err := resolver.Mutation().ModifyMeterReading(context.Background(), 77, change)
+		require.NoError(t, err, "no error expected")
+		assert.Equal(t, got.Count, change.Count, "the count was not changed")
+		assert.Equal(t, got.Date, change.Date, "the date was not changed")
+	})
+	t.Run("incorrect date", func(t *testing.T) {
+		change := MeterReadingChange{
+			Count: 700,
+			Date:  "not a date",
+		}
+		_, err := resolver.Mutation().ModifyMeterReading(context.Background(), 77, change)
+		require.EqualError(t, err, "could not format date: parsing time \"not a date\" as \"2006-01-02\": cannot parse \"not a date\" as \"2006\"", "error message not correct")
+	})
+	t.Run("not found", func(t *testing.T) {
+		_, err := resolver.Mutation().ModifyMeterReading(context.Background(), 34, MeterReadingChange{})
+		require.EqualError(t, err, "could not find meter reading with id 34: not found", "error message not correct")
+	})
 }
 
 func TestQueryResolver_Series(t *testing.T) {
@@ -345,4 +377,13 @@ func (m mockReadingService) QueryForSeries(seriesId uint) ([]domain.MeterReading
 
 func (m mockReadingService) QueryOpenInterval(uint, time.Time, time.Time) ([]domain.MeterReading, error) {
 	panic("implement me")
+}
+
+func (m mockReadingService) QueryById(u uint) (*domain.MeterReading, error) {
+	args := m.Called(u).Get(0)
+	err := m.Called(u).Error(1)
+	if err != nil {
+		return nil, err
+	}
+	return args.(*domain.MeterReading), nil
 }

@@ -64,6 +64,12 @@ func TestMeterReadingServiceImpl_CRUD(t *testing.T) {
 	assert.Equal(t, 2, len(got), "after deletion, result set should be one smaller than before")
 }
 
+func TestMeterReadingServiceImpl_Save(t *testing.T) {
+	service := NewMeterReadingService(nil)
+	err := service.Save(&domain.MeterReading{})
+	assert.EqualError(t, err, "cannot save meter reading without series (series is nil)", "error message wrong")
+}
+
 func TestMeterReadingServiceImpl_DeleteZero(t *testing.T) {
 	db, _ := CreateInMemoryDb()
 	defer func() { _ = db.Close() }()
@@ -126,6 +132,9 @@ func TestMeterReadingServiceImpl_QueryOpenInterval(t *testing.T) {
 
 func TestMeterReadingServiceImpl_QueryById(t *testing.T) {
 	db, _ := CreateInMemoryDb()
+	defer func() {
+		_ = db.Close()
+	}()
 	service := NewMeterReadingService(db)
 	series := domain.Series{Name: "Test Series"}
 	r1 := domain.MeterReading{Count: 666, Date: util.FormatDate(2020, 4, 26), Series: &series}
@@ -135,12 +144,12 @@ func TestMeterReadingServiceImpl_QueryById(t *testing.T) {
 	t.Run("Query by Id 1", func(t *testing.T) {
 		queried1, err := service.QueryById(r1.Id)
 		require.NoError(t, err, "no error expected by query")
-		assert.Equal(t, r1, queried1, "got meter reading differs from wanted")
+		assert.Equal(t, &r1, queried1, "got meter reading differs from wanted")
 	})
 	t.Run("Query by Id 2", func(t *testing.T) {
 		queried2, err := service.QueryById(r2.Id)
 		require.NoError(t, err, "no error expected while querying")
-		assert.Equal(t, r2, queried2, "got meter reading differs from wanted")
+		assert.Equal(t, &r2, queried2, "got meter reading differs from wanted")
 	})
 	t.Run("Id not found", func(t *testing.T) {
 		_, err := service.QueryById(uint(55))
