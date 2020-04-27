@@ -113,20 +113,28 @@ func TestMeterReadingServiceImpl_QueryOpenInterval(t *testing.T) {
 	require.Equal(t, 6, len(waterReadings), "the water readings were not saved correctly")
 	require.Equal(t, 6, len(powerReadings), "the power readings were not saved correctly")
 
-	firstJune, _ := time.Parse(util.DateFormat, "2019-06-01")
-	lastJune, _ := time.Parse(util.DateFormat, "2019-06-30")
-	got, err := service.QueryOpenInterval(water.Id, firstJune, lastJune)
-	require.NoError(t, err, "no error expected")
-	require.Equal(t, 4, len(got), "number of got readings not correct")
-	for index, want := range waterReadings[1:5] {
-		compareMeterReadings(t, want, got[index], fmt.Sprintf("meter reading at index %d", index))
+	cases := []struct {
+		start    string
+		end      string
+		seriesId uint
+		want     domain.MeterReadings
+	}{
+		{start: "2019-06-01", end: "2019-06-30", seriesId: water.Id, want: waterReadings[1:5]},
+		{start: "2019-05-29", end: "2019-06-28", seriesId: water.Id, want: waterReadings[1:4]},
+		{start: "2019-28-04", end: "2019-08-01", seriesId: power.Id, want: powerReadings},
 	}
-
-	got, err = service.QueryOpenInterval(power.Id, april, august)
-	require.NoError(t, err, "no error expected")
-	require.Equal(t, 6, len(got), "number of got readings not correct")
-	for index, want := range powerReadings {
-		compareMeterReadings(t, want, got[index], fmt.Sprintf("meter reading at index %d", index))
+	for _, tt := range cases {
+		name := fmt.Sprintf("Query %s–%s(SeriesId:%d)", tt.start, tt.end, tt.seriesId)
+		t.Run(name, func(t *testing.T) {
+			start, _ := time.Parse(util.DateFormat, tt.start)
+			end, _ := time.Parse(util.DateFormat, tt.end)
+			got, err := service.QueryOpenInterval(tt.seriesId, start, end)
+			require.NoError(t, err, "no error expected")
+			require.Equal(t, len(tt.want), len(got), "number of got readings not correct")
+			for index, want := range tt.want {
+				compareMeterReadings(t, want, got[index], fmt.Sprintf("meter reading at index %d", index))
+			}
+		})
 	}
 }
 

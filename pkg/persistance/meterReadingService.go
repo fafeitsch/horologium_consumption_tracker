@@ -58,13 +58,14 @@ func (m *MeterReadingServiceImpl) QueryForSeries(seriesId uint) ([]domain.MeterR
 	return result, err
 }
 
-//QueryOpenInterval returns all meter readings between start end AND for the specified series.
-//Additionally, it also returns the nearest meter reading left of the interval, as wellas the
-//nearest meter reading right of the interval, if available.
+//QueryOpenInterval returns all meter readings strictly between start and end for the specified series.
+//Additionally, it also returns the nearest meter reading left of the interval, as well as the
+//nearest meter reading right of the interval, if available. These two readings at the border
+//may have the same date as the start/end parameter if there are corresponding readings.
 func (m *MeterReadingServiceImpl) QueryOpenInterval(seriesId uint, start time.Time, end time.Time) ([]domain.MeterReading, error) {
 	resultSet := make([]domain.MeterReading, 0, 0)
 	first := meterReadingEntity{}
-	err := m.db.Where("DATE(date) < ? AND series_id = ?", start, seriesId).Order("date desc").Limit(1).FirstOrInit(&first).Error
+	err := m.db.Where("date <= ? AND series_id = ?", start, seriesId).Order("date desc").Limit(1).FirstOrInit(&first).Error
 	if err != nil {
 		return nil, fmt.Errorf("could not query meter reading left of interval [%v, %v] for seriesId %d: %v", start, end, seriesId, err)
 	}
@@ -72,7 +73,7 @@ func (m *MeterReadingServiceImpl) QueryOpenInterval(seriesId uint, start time.Ti
 		resultSet = append(resultSet, first.toDomainMeterReadingEntity())
 	}
 	interval := make([]meterReadingEntity, 0, 0)
-	err = m.db.Where("DATE(date) >= ? AND DATE(date) <= ? AND series_id = ?", start, end, seriesId).Order("date asc").Find(&interval).Error
+	err = m.db.Where("date > ? AND date < ? AND series_id = ?", start, end, seriesId).Order("date asc").Find(&interval).Error
 	if err != nil {
 		return nil, fmt.Errorf("could not query meter readings in interval [%v, %v] for seriesId %d: %v", start, end, seriesId, err)
 	}
@@ -80,7 +81,7 @@ func (m *MeterReadingServiceImpl) QueryOpenInterval(seriesId uint, start time.Ti
 		resultSet = append(resultSet, e.toDomainMeterReadingEntity())
 	}
 	last := meterReadingEntity{}
-	err = m.db.Where("DATE(date) > ? AND series_id = ?", end, seriesId).Order("date asc").Limit(1).FirstOrInit(&last).Error
+	err = m.db.Where("date >= ? AND series_id = ?", end, seriesId).Order("date asc").Limit(1).FirstOrInit(&last).Error
 	if err != nil {
 		return nil, fmt.Errorf("could not query meter reading right of interval [%v, %v] for seriesId %d: %v", start, end, seriesId, err)
 	}
