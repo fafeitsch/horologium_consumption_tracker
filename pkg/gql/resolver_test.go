@@ -234,8 +234,10 @@ func TestQueryResolver_MonthlyStatisticsSuccess(t *testing.T) {
 		Count: 74.2,
 		Date:  util.FormatDate(2020, 10, 15),
 	}
+	start := util.FormatDate(2020, 9, 1)
+	end := util.FormatDate(2020, 10, 15)
 	readings := []domain.MeterReading{reading1, reading2}
-	readingService.On("QueryForSeries", uint(15)).Return(readings, nil)
+	readingService.On("QueryOpenInterval", uint(15), start, end).Return(readings, nil)
 	resolver := NewResolver(seriesService, planService, readingService)
 	got, err := resolver.Query().MonthlyStatistics(context.Background(), 15, "2020-09-01", "2020-10-15")
 	require.NoError(t, err, "no error expected")
@@ -264,7 +266,7 @@ func TestQueryResolver_MonthlyStatisticsErrors(t *testing.T) {
 		t.Run(tt.want, func(t *testing.T) {
 			seriesService, planService, readingService := createMockServices()
 			planService.On("QueryForSeries", uint(25)).Return([]domain.PricingPlan{}, tt.planError)
-			readingService.On("QueryForSeries", uint(25)).Return([]domain.MeterReading{}, tt.readingsError)
+			readingService.On("QueryOpenInterval", uint(25), mock.Anything, mock.Anything).Return([]domain.MeterReading{}, tt.readingsError)
 			resolver := NewResolver(seriesService, planService, readingService)
 			got, err := resolver.Query().MonthlyStatistics(context.Background(), 25, tt.start, tt.end)
 			assert.Equal(t, 0, len(got), "there should be no object returned")
@@ -375,8 +377,13 @@ func (m mockReadingService) QueryForSeries(seriesId uint) ([]domain.MeterReading
 	return args.([]domain.MeterReading), nil
 }
 
-func (m mockReadingService) QueryOpenInterval(uint, time.Time, time.Time) ([]domain.MeterReading, error) {
-	panic("implement me")
+func (m mockReadingService) QueryOpenInterval(seriesId uint, start time.Time, end time.Time) ([]domain.MeterReading, error) {
+	args := m.Called(seriesId, start, end).Get(0)
+	err := m.Called(seriesId, start, end).Error(1)
+	if err != nil {
+		return nil, err
+	}
+	return args.([]domain.MeterReading), nil
 }
 
 func (m mockReadingService) QueryById(u uint) (*domain.MeterReading, error) {

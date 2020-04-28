@@ -167,10 +167,6 @@ func (r *queryResolver) MeterReadings(ctx context.Context, id int) ([]*MeterRead
 }
 
 func (r *queryResolver) MonthlyStatistics(ctx context.Context, seriesId int, startString string, endString string) ([]*Statistics, error) {
-	readings, err := r.meterService.QueryForSeries(uint(seriesId))
-	if err != nil {
-		return []*Statistics{}, err
-	}
 	plans, err := r.planService.QueryForSeries(uint(seriesId))
 	if err != nil {
 		return []*Statistics{}, err
@@ -185,6 +181,10 @@ func (r *queryResolver) MonthlyStatistics(ctx context.Context, seriesId int, sta
 	}
 	if start.After(end) {
 		return []*Statistics{}, fmt.Errorf("the start date \"%s\" is after the end date \"%s\"", startString, endString)
+	}
+	readings, err := r.meterService.QueryOpenInterval(uint(seriesId), start, end)
+	if err != nil {
+		return []*Statistics{}, err
 	}
 	params := consumption.Parameters{
 		Start:    start,
