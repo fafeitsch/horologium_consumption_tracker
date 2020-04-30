@@ -1,4 +1,12 @@
-<div class="tools">
-  <button mat-button (click)="onAddClicked()"><fa-icon [icon]="plusIcon"></fa-icon> New Meter Reading</button>
+<div class="flex-parent">
+  <div class="tools">
+    <button mat-button (click)="onAddClicked()">
+      <fa-icon [icon]="plusIcon"></fa-icon>
+      New Meter Reading
+    </button>
+  </div>
+  <div class="table-container">
+    <app-meter-reading-table [meterReadings]="meterReadings"
+                             [saveMeterReading]="saveMeterReading"></app-meter-reading-table>
+  </div>
 </div>
-<app-meter-reading-table [meterReadings]="meterReadings" [saveMeterReading]="saveMeterReading"></app-meter-reading-table>

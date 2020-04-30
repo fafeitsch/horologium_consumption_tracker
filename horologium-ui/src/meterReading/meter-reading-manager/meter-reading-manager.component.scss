@@ -2,6 +2,17 @@
   padding: 20px;
 }
 
+.table-container{
+  height: 300px;
+  flex: 1 0 auto;
+  overflow: auto;
+}
+
+.flex-parent {
+  display: flex;
+  flex-direction: column;
+}
+
 fa-icon{
   font-size: 1.5em;
   padding: 5px;
