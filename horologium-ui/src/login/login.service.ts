@@ -3,7 +3,6 @@ import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
 import {environment} from '../environments/environment';
 import {LoginObserver} from './loginObserver';
 import {Observable} from 'rxjs';
-import {Router} from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +10,7 @@ import {Router} from '@angular/router';
 export class LoginService {
   private observers: LoginObserver[] = [];
 
-  constructor(private http: HttpClient, private router: Router) {
+  constructor(private http: HttpClient) {
   }
 
   public registerObserver(observer: LoginObserver): void {
@@ -33,7 +32,6 @@ export class LoginService {
   public logout(): void {
     localStorage.removeItem('token');
     this.observers.forEach(obs => obs.loggedOut());
-    this.router.navigate(['login']).then();
   }
 
   public startLogin(username: string, password: string) {
@@ -42,7 +40,6 @@ export class LoginService {
     httpResult.subscribe(resp => {
         localStorage.setItem('token', resp.body.token);
         this.observers.forEach(obs => obs.successFullLogin(this.parseToken(resp.body.token).UserName));
-        this.router.navigate(['']).then();
       },
       error => {
         const httpError = error as HttpErrorResponse;

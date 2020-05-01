@@ -1,7 +1,6 @@
 import {BrowserModule} from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
 
-import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
 import {GraphQLModule} from './graphql.module';
 import {HttpClientModule} from '@angular/common/http';
@@ -18,7 +17,7 @@ import {
   MatListModule, MatRadioModule, MatSidenavModule, MatTableModule, MatTabsModule,
   MatToolbarModule
 } from '@angular/material';
-import {MatMomentDateModule} from '@angular/material-moment-adapter'
+import {MatMomentDateModule} from '@angular/material-moment-adapter';
 import {LoginComponent} from '../login/login.component';
 import {DashboardComponent} from '../dashboard/dashboard.component';
 import {SeriesListComponent} from '../series/list/series-list.component';
@@ -33,6 +32,7 @@ import { MeterReadingTableComponent } from '../meterReading/meter-reading-table/
 import { MeterReadingEditorComponent } from '../meterReading/meter-reading-editor/meter-reading-editor.component';
 import { StatisticsComponentComponent } from '../statistics/statistics-component/statistics-component.component';
 import { StatisticsTableComponent } from '../statistics/statistics-table/statistics-table.component';
+import { InfoComponent } from '../info-component/info.component';
 
 @NgModule({
   declarations: [
@@ -49,10 +49,10 @@ import { StatisticsTableComponent } from '../statistics/statistics-table/statist
     MeterReadingEditorComponent,
     StatisticsComponentComponent,
     StatisticsTableComponent,
+    InfoComponent,
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule,
     GraphQLModule,
     HttpClientModule,
     BrowserAnimationsModule,

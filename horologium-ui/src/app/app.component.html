@@ -1,2 +1,3 @@
 <app-header></app-header>
-<router-outlet></router-outlet>
+<app-dashboard *ngIf="loggedIn"></app-dashboard>
+<app-info-component #elseBlock></app-info-component>

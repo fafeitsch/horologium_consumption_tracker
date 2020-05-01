@@ -1,5 +1,4 @@
 import {Component, OnInit} from '@angular/core';
-import {Router} from '@angular/router';
 import {Series} from '../series/series';
 import {SeriesService} from '../series/series.service';
 import {PricingPlanService} from '../plan/pricing-plan.service';
@@ -9,6 +8,7 @@ import {PricingPlanServiceListener} from '../plan/pricing-plan-service-listener'
 import {MeterReading} from '../meterReading/meter-reading';
 import {MeterReadingServiceListener} from '../meterReading/meter-reading-service-listener';
 import {MeterReadingService} from '../meterReading/meter-reading.service';
+import {LoginService} from '../login/login.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -25,10 +25,10 @@ export class DashboardComponent implements OnInit, PricingPlanServiceListener, M
   public savePlan: (plan: Plan) => Observable<Plan>;
   public saveMeterReading: (reading: MeterReading) => Observable<MeterReading>;
 
-  constructor(private seriesService: SeriesService,
+  constructor(private loginService: LoginService,
+              private seriesService: SeriesService,
               private planService: PricingPlanService,
-              private meterReadingService: MeterReadingService,
-              private router: Router) {
+              private meterReadingService: MeterReadingService) {
     planService.addListener(this);
     meterReadingService.addListener(this);
     this.savePlan = (plan: Plan) => {
@@ -46,7 +46,6 @@ export class DashboardComponent implements OnInit, PricingPlanServiceListener, M
       this.series = resp;
     }, (error) => {
       console.log(error);
-      this.router.navigate(['login']).then();
     });
   }
 
@@ -56,13 +55,11 @@ export class DashboardComponent implements OnInit, PricingPlanServiceListener, M
       this.pricingPlans = resp;
     }, (error) => {
       console.log(error);
-      this.router.navigate(['login']).then();
     });
     this.meterReadingService.queryMeterReadings(series.id).subscribe(resp => {
       this.meterReadings = resp;
     }, (error) => {
       console.log(error);
-      this.router.navigate(['login']).then();
     });
   }
 
