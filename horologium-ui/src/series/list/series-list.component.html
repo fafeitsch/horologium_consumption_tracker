@@ -1,7 +1,7 @@
 <div class="container">
   <mat-list>
-    <mat-list-item *ngFor="let s of this.series" dense>
-      <mat-radio-button (change)="seriesSelectionChanged($event.value)" [value]="s" color="primary">
+    <mat-list-item *ngFor="let s of this.series, let counter = index" dense>
+      <mat-radio-button (change)="seriesSelectionChanged($event.value)" [value]="s.id" color="primary" [checked]="counter === 0">
         {{s.name}}
         <mat-divider></mat-divider>
       </mat-radio-button>

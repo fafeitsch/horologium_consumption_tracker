@@ -3,19 +3,20 @@
     <form #myForm="ngForm">
       <div class="form-row">
         <mat-form-field>
-          <input matInput [matDatepicker]="startPicker" placeholder="Start" [(ngModel)]="startDate" name="startDate"
-                 ngDefaultControl required/>
+          <mat-label>Start</mat-label>
+          <input matInput [matDatepicker]="startPicker" [(ngModel)]="startDate" name="startDate"
+                 required/>
           <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
-          <mat-datepicker #startPicker [(ngModel)]="startDate" name="startDate" ngDefaultControl></mat-datepicker>
+          <mat-datepicker #startPicker name="startDate" ngDefaultControl></mat-datepicker>
         </mat-form-field>
         <mat-form-field>
-          <input matInput [matDatepicker]="endPicker" placeholder="End" [(ngModel)]="endDate" name="date"
-                 ngDefaultControl
+          <mat-label>End</mat-label>
+          <input matInput [matDatepicker]="endPicker" [(ngModel)]="endDate" name="date"
                  required/>
           <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
-          <mat-datepicker #endPicker [(ngModel)]="endDate" name="date" ngDefaultControl></mat-datepicker>
+          <mat-datepicker #endPicker name="date" ngDefaultControl></mat-datepicker>
         </mat-form-field>
-        <button mat-button color="primary" (click)="load()">Load</button>
+        <button mat-raised-button color="primary" (click)="load()">Load</button>
       </div>
     </form>
   </div>

@@ -20,7 +20,7 @@
       <mat-form-field class="full-width">
         <input matInput [matDatepicker]="validFromPicker" placeholder="Valid From" [(ngModel)]="validFrom" name="validFrom" ngDefaultControl required/>
         <mat-datepicker-toggle matSuffix [for]="validFromPicker"></mat-datepicker-toggle>
-        <mat-datepicker #validFromPicker [(ngModel)]="validFrom" name="validFrom" ngDefaultControl></mat-datepicker>
+        <mat-datepicker #validFromPicker name="validFrom" ngDefaultControl></mat-datepicker>
       </mat-form-field>
     </div>
     <div class="form-row">
