@@ -14,7 +14,6 @@ export class StatisticsService {
   constructor(private apollo: Apollo) { }
 
   getMonthlyStatistics(seriesId: number, start: Date, end: Date): Observable<Statistics[]> {
-    console.log('query');
     return this.apollo.query({
       query: gql`query stats($seriesId: Int!, $start: Date!, $end: Date!){
         monthlyStatistics(seriesId: $seriesId, start: $start, end: $end){
