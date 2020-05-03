@@ -6,6 +6,9 @@
     </button>
   </div>
   <div class="table-container">
-    <app-pricing-plan-table [pricingPlans]="pricingPlans"></app-pricing-plan-table>
+    <app-pricing-plan-table [pricingPlans]="pricingPlans" (selectedPlan)="selectedPlan = $event"></app-pricing-plan-table>
+  </div>
+  <div *ngIf="selectedPlan">
+    <app-pricing-plan-editor [pricingPlan]="selectedPlan" [savePressed]="savePlan"></app-pricing-plan-editor>
   </div>
 </div>

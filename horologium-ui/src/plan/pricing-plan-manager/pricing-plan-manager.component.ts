@@ -2,7 +2,6 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {Plan} from '../plan';
 import {faPlus} from '@fortawesome/free-solid-svg-icons';
 import {PricingPlanEditorComponent} from '../pricing-plan-editor/pricing-plan-editor.component';
-import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
 import {Observable} from 'rxjs';
 
 @Component({
@@ -10,25 +9,23 @@ import {Observable} from 'rxjs';
   templateUrl: './pricing-plan-manager.component.html',
   styleUrls: ['./pricing-plan-manager.component.scss']
 })
-export class PricingPlanManagerComponent implements OnInit {
+export class PricingPlanManagerComponent {
 
   public plusIcon = faPlus;
+  public selectedPlan: Plan;
   @Input() public pricingPlans: Plan[];
   @Input() public savePlan: (plan: Plan) => Observable<Plan>;
 
-  constructor(private dialog: MatDialog) {
-  }
-
-  ngOnInit() {
+  constructor() {
   }
 
   onAddClicked(): void {
-    const dialogRef = this.dialog.open(PricingPlanEditorComponent, {
-      height: '480px',
-      width: '400px',
-      data: {
-        savePressed: this.savePlan
-      },
-    });
+    // const dialogRef = this.dialog.open(PricingPlanEditorComponent, {
+    //   height: '480px',
+    //   width: '400px',
+    //   data: {
+    //     savePressed: this.savePlan
+    //   },
+    // });
   }
 }

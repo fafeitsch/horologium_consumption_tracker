@@ -1,48 +1,39 @@
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
-import {Component, EventEmitter, Inject, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Inject, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges} from '@angular/core';
 import {Plan} from '../plan';
+import {Observable} from 'rxjs';
 
 @Component({
   selector: 'app-pricing-plan-editor',
   templateUrl: './pricing-plan-editor.component.html',
   styleUrls: ['./pricing-plan-editor.component.scss']
 })
-export class PricingPlanEditorComponent implements OnInit {
+export class PricingPlanEditorComponent implements OnChanges {
 
-  public planName: string;
-  public basePrice: number;
-  public unitPrice: number;
-  public validFrom: Date;
-  public validTo: Date;
+  @Input() pricingPlan: Plan;
+  @Input() savePressed: (plan: Plan) => Observable<Plan>;
+  public editedPlan: Plan;
   public validityResult: string;
 
-  constructor(
-    public dialogRef: MatDialogRef<PricingPlanEditorComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any) {
+  constructor() {
   }
 
-  ngOnInit() {
-
-  }
-
-  public getPlan(): Plan {
-    const plan = new Plan();
-    plan.name = this.planName;
-    plan.basePrice = this.basePrice;
-    plan.unitPrice = this.unitPrice;
-    plan.validFrom = this.validFrom;
-    plan.validTo = this.validTo;
-    return plan;
+  ngOnChanges(changes: SimpleChanges): void {
+    const planChange: SimpleChange = changes.pricingPlan;
+    this.pricingPlan = planChange.currentValue;
+    this.editedPlan = JSON.parse(JSON.stringify(planChange.currentValue));
   }
 
   public saveClicked(): void {
-    const plan: Plan = this.getPlan();
-    this.data.savePressed(plan).subscribe((result: Plan) => {
+    this.savePressed(this.editedPlan).subscribe((result: Plan) => {
       this.validityResult = null;
-      this.dialogRef.close();
     }, error => {
       this.validityResult = error;
     });
+  }
+
+  public resetClicked(): void {
+    this.editedPlan = JSON.parse(JSON.stringify(this.pricingPlan));
   }
 }
 

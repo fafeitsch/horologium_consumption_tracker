@@ -10,7 +10,7 @@ import {
   DateAdapter,
   MAT_DATE_FORMATS,
   MatButtonModule,
-  MatCardModule, MatDatepickerModule, MatDialogModule,
+  MatCardModule, MatCheckboxModule, MatDatepickerModule, MatDialogModule,
   MatFormFieldModule,
   MatGridListModule,
   MatInputModule,
@@ -72,6 +72,7 @@ import { InfoComponent } from '../info-component/info.component';
     MatDialogModule,
     MatMomentDateModule,
     FormsModule,
+    MatCheckboxModule,
   ],
   entryComponents: [
     PricingPlanEditorComponent,
