@@ -22,7 +22,7 @@ export class StatisticsComponentComponent implements OnInit, OnChanges {
   ngOnInit() {
     const year: number = new Date().getFullYear();
     this.startDate = new Date(year + '-01-01');
-    const month: number = new Date().getMonth();
+    const month: number = new Date().getMonth() + 1;
     this.endDate = new Date(year + '-' + month + '-01');
   }
 
