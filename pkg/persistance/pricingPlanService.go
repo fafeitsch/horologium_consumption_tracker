@@ -11,6 +11,7 @@ import (
 type PricingPlanService interface {
 	Save(*domain.PricingPlan) error
 	Delete(uint) error
+	QueryById(uint) (*domain.PricingPlan, error)
 	QueryAll() ([]domain.PricingPlan, error)
 	QueryForSeries(uint) ([]domain.PricingPlan, error)
 	QueryForTime(uint, time.Time) (*domain.PricingPlan, error)
@@ -76,4 +77,11 @@ func (p *PricingPlanServiceImpl) QueryForTime(seriesId uint, t time.Time) (*doma
 	}
 	result := resultSet[0].toDomainPricingPlan()
 	return &result, nil
+}
+
+func (p *PricingPlanServiceImpl) QueryById(id uint) (*domain.PricingPlan, error) {
+	entity := &pricingPlanEntity{}
+	err := p.db.First(&entity, id).Error
+	plan := entity.toDomainPricingPlan()
+	return &plan, err
 }

@@ -41,13 +41,22 @@ input NewSeriesInput {
   name: String!
 }
 
-input NewPricingPlanInput{
+input PricingPlanInput{
   name: String!
   basePrice: Float!
   unitPrice: Float!
   validFrom: Date!
   validTo: Date
   seriesId: Int!
+}
+
+input PricingPlanChange{
+  id: Int!
+  name: String!
+  basePrice: Float!
+  unitPrice: Float!
+  validFrom: Date!
+  validTo: Date
 }
 
 input MeterReadingInput{
@@ -57,6 +66,7 @@ input MeterReadingInput{
 }
 
 input MeterReadingChange{
+  id: Int!
   count: Float!
   date: Date!
 }
@@ -64,7 +74,8 @@ input MeterReadingChange{
 type Mutation {
   createSeries(series: NewSeriesInput!): Series!
   deleteSeries(id: Int!): Int!
-  createPricingPlan(plan: NewPricingPlanInput): PricingPlan!
+  createPricingPlan(plan: PricingPlanInput!): PricingPlan!
+  modifyPricingPlan(plan: PricingPlanChange!): PricingPlan!
   createMeterReading(reading: MeterReadingInput!): MeterReading!
-  modifyMeterReading(id: Int!, reading: MeterReadingChange!): MeterReading!
+  modifyMeterReading(reading: MeterReadingChange!): MeterReading!
 }

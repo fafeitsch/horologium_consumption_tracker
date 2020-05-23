@@ -1,9 +1,11 @@
 package gql
 
 import (
+	"fmt"
 	"github.com/fafeitsch/Horologium/pkg/consumption"
 	"github.com/fafeitsch/Horologium/pkg/domain"
 	"github.com/fafeitsch/Horologium/pkg/util"
+	"time"
 )
 
 func toQLSeries(series *domain.Series) *Series {
@@ -14,6 +16,22 @@ func toQLSeries(series *domain.Series) *Series {
 		ID:   int(series.Id),
 		Name: series.Name,
 	}
+}
+
+func parseDates(dates ...*string) ([]*time.Time, error) {
+	result := make([]*time.Time, 0, len(dates))
+	for _, date := range dates {
+		if date == nil {
+			result = append(result, nil)
+			continue
+		}
+		converted, err := time.Parse(util.DateFormat, *date)
+		if err != nil {
+			return nil, fmt.Errorf("could not parse \"%s\" as format YYYY-MM-DD", *date)
+		}
+		result = append(result, &converted)
+	}
+	return result, nil
 }
 
 func toQLPricingPlan(plan *domain.PricingPlan) *PricingPlan {

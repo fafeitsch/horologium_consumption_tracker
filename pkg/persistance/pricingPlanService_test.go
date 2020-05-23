@@ -79,7 +79,7 @@ func TestPricingPlanServiceImpl_DeleteZero(t *testing.T) {
 	assert.EqualError(t, err, "cannot delete entity with id 0", "Id = 0 is not allowed for deletion.")
 }
 
-func comparePrincingPlans(t *testing.T, got, want *domain.PricingPlan) {
+func comparePricingPlans(t *testing.T, got, want *domain.PricingPlan) {
 	assert.Equal(t, got.Name, want.Name, "name is different")
 	assert.Equal(t, got.ValidTo, want.ValidTo, "validTo is different")
 	assert.Equal(t, got.ValidFrom, want.ValidFrom, "validFrom is different")
@@ -119,5 +119,28 @@ func TestPricingPlanServiceImpl_QueryForTime(t *testing.T) {
 
 	got, err := service.QueryForTime(4, readingTime)
 	require.NoError(t, err, "no error expected")
-	comparePrincingPlans(t, got, &mayWaterPlan)
+	comparePricingPlans(t, got, &mayWaterPlan)
+}
+
+func Test_pricingPlanServiceImpl_QueryById(t *testing.T) {
+	db, _ := CreateInMemoryDb()
+	defer func() { _ = db.Close() }()
+	service := NewPricingPlanService(db)
+
+	series := domain.Series{Name: "Test Series"}
+
+	plan1 := domain.PricingPlan{Name: "Plan January", Series: &series}
+	plan2 := domain.PricingPlan{Name: "Plan March", Series: &series}
+	err := service.Save(&plan1)
+	require.NoError(t, err)
+	err = service.Save(&plan2)
+	require.NoError(t, err)
+
+	got1, err := service.QueryById(plan1.Id)
+	assert.NoError(t, err, "no error while querying expected")
+	assert.Equal(t, plan1, *got1, "queried plan 1 is not as expected")
+
+	got2, err := service.QueryById(plan2.Id)
+	assert.NoError(t, err, "no error while querying expected")
+	assert.Equal(t, plan2, *got2, "queried plan 2 is not as expected")
 }

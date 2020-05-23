@@ -48,18 +48,58 @@ func TestMutationResolver_CreatePricingPlan(t *testing.T) {
 	validToStr := validTo1.Format(util.DateFormat)
 
 	t.Run("with both dates", func(t *testing.T) {
-		newPlan := NewPricingPlanInput{Name: "Power 2020", BasePrice: 40, UnitPrice: 23, ValidFrom: validFrom1.Format(util.DateFormat), ValidTo: &validToStr, SeriesID: 27}
-		got, err := resolver.Mutation().CreatePricingPlan(context.Background(), &newPlan)
+		newPlan := PricingPlanInput{Name: "Power 2020", BasePrice: 40, UnitPrice: 23, ValidFrom: validFrom1.Format(util.DateFormat), ValidTo: &validToStr, SeriesID: 27}
+		got, err := resolver.Mutation().CreatePricingPlan(context.Background(), newPlan)
 		assert.NoError(t, err, "no error expected")
 		plan := domain.PricingPlan{Id: 677, Name: "Power 2020", BasePrice: 40, UnitPrice: 23, ValidFrom: &validFrom1, ValidTo: &validTo1, Series: &series}
 		comparePlans(t, plan, got, "created plan")
 	})
 	t.Run("with only start date", func(t *testing.T) {
-		newPlan := NewPricingPlanInput{Name: "Power 2020", BasePrice: 40, UnitPrice: 23, ValidFrom: validFrom1.Format(util.DateFormat), ValidTo: nil, SeriesID: 27}
-		got, err := resolver.Mutation().CreatePricingPlan(context.Background(), &newPlan)
+		newPlan := PricingPlanInput{Name: "Power 2020", BasePrice: 40, UnitPrice: 23, ValidFrom: validFrom1.Format(util.DateFormat), ValidTo: nil, SeriesID: 27}
+		got, err := resolver.Mutation().CreatePricingPlan(context.Background(), newPlan)
 		assert.NoError(t, err, "no error expected")
 		plan := domain.PricingPlan{Id: 677, Name: "Power 2020", BasePrice: 40, UnitPrice: 23, ValidFrom: &validFrom1, ValidTo: nil, Series: &series}
 		comparePlans(t, plan, got, "created plan")
+	})
+}
+
+func TestMutationResolver_ModifyPricingPlan(t *testing.T) {
+	seriesService, planService, readingService := createMockServices()
+	resolver := NewResolver(seriesService, planService, readingService)
+	series := domain.Series{Id: 5}
+	plan := domain.PricingPlan{Id: 77, ValidFrom: util.FormatDatePtr(2019, 6, 20), BasePrice: 44, UnitPrice: 2.3, Series: &series}
+
+	planService.On("QueryById", plan.Id).Return(&plan, nil)
+	planService.On("Save").Return(int(plan.Id), nil)
+	planService.On("QueryById", uint(34)).Return(nil, fmt.Errorf("not found"))
+	t.Run("success", func(t *testing.T) {
+		validTo := "2020-12-04"
+		change := PricingPlanChange{
+			ValidFrom: "2020-06-20",
+			ValidTo:   &validTo,
+			BasePrice: 3,
+			UnitPrice: 5,
+			ID:        77,
+		}
+		got, err := resolver.Mutation().ModifyPricingPlan(context.Background(), change)
+		require.NoError(t, err, "no error expected")
+		assert.Equal(t, got.ValidFrom, change.ValidFrom, "the validFrom was not changed")
+		assert.Equal(t, got.ValidTo, change.ValidTo, "the validTo was not changed")
+		assert.Equal(t, got.BasePrice, change.BasePrice, "the basePrice was not changed")
+		assert.Equal(t, got.UnitPrice, change.UnitPrice, "the unitPrice was not changed")
+	})
+	t.Run("incorrect date", func(t *testing.T) {
+		change := PricingPlanChange{
+			ValidFrom: "not a date",
+			BasePrice: 3,
+			UnitPrice: 5,
+		}
+		_, err := resolver.Mutation().ModifyPricingPlan(context.Background(), change)
+		require.EqualError(t, err, "could not parse \"not a date\" as format YYYY-MM-DD", "error message not correct")
+	})
+	t.Run("not found", func(t *testing.T) {
+		_, err := resolver.Mutation().ModifyPricingPlan(context.Background(), PricingPlanChange{ID: 34, ValidFrom: "2020-03-04"})
+		require.EqualError(t, err, "could not find pricing plan with id 34: not found", "error message not correct")
 	})
 }
 
@@ -90,7 +130,7 @@ func compareMeterReadings(t *testing.T, expected domain.MeterReading, got *Meter
 	assert.Equal(t, expected.Id, uint(got.ID), "id of %s is wrong", msg)
 }
 
-func TestMutationResolver_CreateMeterReading(t *testing.T) {
+func TestMutationResolver_ModifyMeterReading(t *testing.T) {
 	seriesService, planService, readingService := createMockServices()
 	resolver := NewResolver(seriesService, planService, readingService)
 	series := domain.Series{Id: 5}
@@ -102,8 +142,9 @@ func TestMutationResolver_CreateMeterReading(t *testing.T) {
 		change := MeterReadingChange{
 			Count: 700,
 			Date:  "2019-10-23",
+			ID:    77,
 		}
-		got, err := resolver.Mutation().ModifyMeterReading(context.Background(), 77, change)
+		got, err := resolver.Mutation().ModifyMeterReading(context.Background(), change)
 		require.NoError(t, err, "no error expected")
 		assert.Equal(t, got.Count, change.Count, "the count was not changed")
 		assert.Equal(t, got.Date, change.Date, "the date was not changed")
@@ -112,12 +153,13 @@ func TestMutationResolver_CreateMeterReading(t *testing.T) {
 		change := MeterReadingChange{
 			Count: 700,
 			Date:  "not a date",
+			ID:    77,
 		}
-		_, err := resolver.Mutation().ModifyMeterReading(context.Background(), 77, change)
+		_, err := resolver.Mutation().ModifyMeterReading(context.Background(), change)
 		require.EqualError(t, err, "could not format date: parsing time \"not a date\" as \"2006-01-02\": cannot parse \"not a date\" as \"2006\"", "error message not correct")
 	})
 	t.Run("not found", func(t *testing.T) {
-		_, err := resolver.Mutation().ModifyMeterReading(context.Background(), 34, MeterReadingChange{})
+		_, err := resolver.Mutation().ModifyMeterReading(context.Background(), MeterReadingChange{ID: 34})
 		require.EqualError(t, err, "could not find meter reading with id 34: not found", "error message not correct")
 	})
 }
@@ -258,8 +300,7 @@ func TestQueryResolver_MonthlyStatisticsErrors(t *testing.T) {
 	}{
 		{start: "2019-01-01", end: "2020-01-01", planError: errors.New("plans could not be loaded"), readingsError: nil, want: "plans could not be loaded"},
 		{start: "2019-01-01", end: "2020-01-01", planError: nil, readingsError: errors.New("readings could not be loaded"), want: "readings could not be loaded"},
-		{start: "nodate", end: "2020-01-01", planError: nil, readingsError: nil, want: "could not parse the start date \"nodate\": parsing time \"nodate\" as \"2006-01-02\": cannot parse \"nodate\" as \"2006\""},
-		{start: "2019-01-01", end: "nodate", planError: nil, readingsError: nil, want: "could not parse the end date \"nodate\": parsing time \"nodate\" as \"2006-01-02\": cannot parse \"nodate\" as \"2006\""},
+		{start: "nodate", end: "2020-01-01", planError: nil, readingsError: nil, want: "could not parse \"nodate\" as format YYYY-MM-DD"},
 		{start: "2019-01-01", end: "2018-12-31", planError: nil, readingsError: nil, want: "the start date \"2019-01-01\" is after the end date \"2018-12-31\""},
 	}
 	for _, tt := range testcases {
@@ -348,6 +389,15 @@ func (m mockPricingPlanService) QueryForSeries(id uint) ([]domain.PricingPlan, e
 
 func (m mockPricingPlanService) QueryForTime(uint, time.Time) (*domain.PricingPlan, error) {
 	panic("implement me")
+}
+
+func (m mockPricingPlanService) QueryById(id uint) (*domain.PricingPlan, error) {
+	args := m.Called(id).Get(0)
+	err := m.Called(id).Error(1)
+	if err != nil {
+		return nil, err
+	}
+	return args.(*domain.PricingPlan), nil
 }
 
 type mockReadingService struct {

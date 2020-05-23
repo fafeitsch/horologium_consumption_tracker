@@ -55,18 +55,10 @@ func (r *mutationResolver) DeleteSeries(ctx context.Context, id int) (int, error
 	return id, r.seriesService.Delete(uint(id))
 }
 
-func (r *mutationResolver) CreatePricingPlan(ctx context.Context, plan *NewPricingPlanInput) (*PricingPlan, error) {
-	start, err := time.Parse(util.DateFormat, plan.ValidFrom)
+func (r *mutationResolver) CreatePricingPlan(ctx context.Context, plan PricingPlanInput) (*PricingPlan, error) {
+	dates, err := parseDates(&plan.ValidFrom, plan.ValidTo)
 	if err != nil {
-		return nil, fmt.Errorf("could not parse the validFrom date as RFC3339: %v", err)
-	}
-	var end *time.Time
-	if plan.ValidTo != nil {
-		tmp, err := time.Parse(util.DateFormat, *plan.ValidTo)
-		if err != nil {
-			return nil, fmt.Errorf("could not parse the validTo date as RFC3339: %v", err)
-		}
-		end = &tmp
+		return nil, fmt.Errorf("could not parse date as format YYYY-MM-DD: %v", err)
 	}
 	series, err := r.seriesService.QueryById(uint(plan.SeriesID))
 	if err != nil {
@@ -76,8 +68,8 @@ func (r *mutationResolver) CreatePricingPlan(ctx context.Context, plan *NewPrici
 		Name:      plan.Name,
 		BasePrice: plan.BasePrice,
 		UnitPrice: plan.UnitPrice,
-		ValidFrom: &start,
-		ValidTo:   end,
+		ValidFrom: dates[0],
+		ValidTo:   dates[1],
 		Series:    series,
 	}
 	err = r.planService.Save(&newPlan)
@@ -85,6 +77,27 @@ func (r *mutationResolver) CreatePricingPlan(ctx context.Context, plan *NewPrici
 		return nil, fmt.Errorf("the pricing plan could not be saved: %v", err)
 	}
 	return toQLPricingPlan(&newPlan), nil
+}
+
+func (r *mutationResolver) ModifyPricingPlan(ctx context.Context, plan PricingPlanChange) (*PricingPlan, error) {
+	dates, err := parseDates(&plan.ValidFrom, plan.ValidTo)
+	if err != nil {
+		return nil, err
+	}
+	existingPlan, err := r.planService.QueryById(uint(plan.ID))
+	if err != nil {
+		return nil, fmt.Errorf("could not find pricing plan with id %d: %v", plan.ID, err)
+	}
+	existingPlan.Name = plan.Name
+	existingPlan.UnitPrice = plan.UnitPrice
+	existingPlan.BasePrice = plan.BasePrice
+	existingPlan.ValidFrom = dates[0]
+	existingPlan.ValidTo = dates[1]
+	err = r.planService.Save(existingPlan)
+	if err != nil {
+		return nil, fmt.Errorf("the pricing plan could not be saved: %v", err)
+	}
+	return toQLPricingPlan(existingPlan), nil
 }
 
 func (r *mutationResolver) CreateMeterReading(ctx context.Context, reading MeterReadingInput) (*MeterReading, error) {
@@ -108,10 +121,10 @@ func (r *mutationResolver) CreateMeterReading(ctx context.Context, reading Meter
 	return toQlMeterReading(&newReading), nil
 }
 
-func (r *mutationResolver) ModifyMeterReading(ctx context.Context, id int, input MeterReadingChange) (*MeterReading, error) {
-	existing, err := r.meterService.QueryById(uint(id))
+func (r *mutationResolver) ModifyMeterReading(ctx context.Context, input MeterReadingChange) (*MeterReading, error) {
+	existing, err := r.meterService.QueryById(uint(input.ID))
 	if err != nil {
-		return nil, fmt.Errorf("could not find meter reading with id %d: %v", id, err)
+		return nil, fmt.Errorf("could not find meter reading with id %d: %v", input.ID, err)
 	}
 	date, err := time.Parse(util.DateFormat, input.Date)
 	if err != nil {
@@ -171,14 +184,11 @@ func (r *queryResolver) MonthlyStatistics(ctx context.Context, seriesId int, sta
 	if err != nil {
 		return []*Statistics{}, err
 	}
-	start, err := time.Parse(util.DateFormat, startString)
+	dates, err := parseDates(&startString, &endString)
 	if err != nil {
-		return []*Statistics{}, fmt.Errorf("could not parse the start date \"%s\": %v", startString, err)
+		return nil, err
 	}
-	end, err := time.Parse(util.DateFormat, endString)
-	if err != nil {
-		return []*Statistics{}, fmt.Errorf("could not parse the end date \"%s\": %v", endString, err)
-	}
+	start, end := *dates[0], *dates[1]
 	if start.After(end) {
 		return []*Statistics{}, fmt.Errorf("the start date \"%s\" is after the end date \"%s\"", startString, endString)
 	}
