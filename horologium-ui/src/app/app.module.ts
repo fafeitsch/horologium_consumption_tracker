@@ -14,7 +14,7 @@ import {
   MatFormFieldModule,
   MatGridListModule,
   MatInputModule,
-  MatListModule, MatRadioModule, MatSidenavModule, MatTableModule, MatTabsModule,
+  MatListModule, MatRadioModule, MatSidenavModule, MatSnackBarModule, MatTableModule, MatTabsModule,
   MatToolbarModule
 } from '@angular/material';
 import {MatMomentDateModule} from '@angular/material-moment-adapter';
@@ -33,6 +33,7 @@ import { MeterReadingEditorComponent } from '../meterReading/meter-reading-edito
 import { StatisticsComponentComponent } from '../statistics/statistics-component/statistics-component.component';
 import { StatisticsTableComponent } from '../statistics/statistics-table/statistics-table.component';
 import { InfoComponent } from '../info-component/info.component';
+import {AmericanDatePipe} from './americanDate';
 
 @NgModule({
   declarations: [
@@ -50,6 +51,7 @@ import { InfoComponent } from '../info-component/info.component';
     StatisticsComponentComponent,
     StatisticsTableComponent,
     InfoComponent,
+    AmericanDatePipe,
   ],
   imports: [
     BrowserModule,
@@ -71,6 +73,7 @@ import { InfoComponent } from '../info-component/info.component';
     MatDatepickerModule,
     MatDialogModule,
     MatMomentDateModule,
+    MatSnackBarModule,
     FormsModule,
     MatCheckboxModule,
   ],

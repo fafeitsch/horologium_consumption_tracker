@@ -1,7 +1,7 @@
-import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material';
-import {Component, EventEmitter, Inject, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges} from '@angular/core';
+import {Component, Input, OnChanges, SimpleChange, SimpleChanges} from '@angular/core';
 import {Plan} from '../plan';
 import {Observable} from 'rxjs';
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-pricing-plan-editor',
@@ -15,7 +15,7 @@ export class PricingPlanEditorComponent implements OnChanges {
   public editedPlan: Plan;
   public validityResult: string;
 
-  constructor() {
+  constructor(private snackBar: MatSnackBar) {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -25,9 +25,16 @@ export class PricingPlanEditorComponent implements OnChanges {
   }
 
   public saveClicked(): void {
+    this.pricingPlan.name = this.editedPlan.name;
+    this.pricingPlan.validFrom = this.editedPlan.validFrom;
+    this.pricingPlan.validTo = this.editedPlan.validTo;
+    this.pricingPlan.unitPrice = this.editedPlan.unitPrice;
+    this.pricingPlan.basePrice = this.editedPlan.basePrice;
     this.savePressed(this.editedPlan).subscribe((result: Plan) => {
       this.validityResult = null;
+      this.snackBar.open('Plan saved successfully.', undefined, {duration: 1000});
     }, error => {
+      this.snackBar.open('An error occured: ' + error, undefined, {duration: 1000});
       this.validityResult = error;
     });
   }

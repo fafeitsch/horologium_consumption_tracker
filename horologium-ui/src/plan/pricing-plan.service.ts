@@ -6,6 +6,8 @@ import gql from 'graphql-tag';
 import {map} from 'rxjs/operators';
 import * as moment from 'moment';
 import {PricingPlanServiceListener} from './pricing-plan-service-listener';
+import {MutationOptions} from 'apollo-client';
+import {MeterReading} from '../meterReading/meter-reading';
 
 @Injectable({
   providedIn: 'root'
@@ -34,36 +36,72 @@ export class PricingPlanService {
   }
 
   savePricingPlan(plan: Plan): Observable<Plan> {
+    let mutation;
+    if (plan.id) {
+      mutation = this.getMutationForExistingPricingPlan(plan);
+      return this.apollo.mutate(mutation).pipe(map(response => {
+        return (response.data as any).modifyPricingPlan;
+      }));
+    } else {
+      mutation = this.getMutationForNewPricingPlan(plan);
+      return this.apollo.mutate(mutation).pipe(map(response => {
+        const addedPlan: Plan = (response.data as any).modifyPricingPlan;
+        if (addedPlan) {
+          for (const listener of this.listeners) {
+            listener.pricingPlanAdded(addedPlan);
+          }
+        }
+        return addedPlan;
+      }));
+    }
+  }
+
+  private getMutationForExistingPricingPlan(plan: Plan): MutationOptions {
     const from = moment(plan.validFrom).format('YYYY-MM-DD');
     let to = null;
     if (plan.validTo) {
       to = moment(plan.validTo).format('YYYY-MM-DD');
     }
-    return this.apollo.mutate({
+    return {
       mutation: gql`
-        mutation create($planObj: NewPricingPlanInput){
-          createPricingPlan(plan: $planObj){name, basePrice, id, unitPrice, validFrom, validTo, seriesId}
+        mutation modify($planObj:  PricingPlanChange!){
+          modifyPricingPlan(plan: $planObj){id, name, validFrom, validTo, basePrice, unitPrice, seriesId}
+        }`,
+      variables: {
+        planObj: {
+          id: plan.id,
+          name: plan.name,
+          validFrom: from,
+          validTo: to,
+          basePrice: plan.basePrice,
+          unitPrice: plan.unitPrice
+        }
+      },
+      errorPolicy: 'all'
+    };
+  }
+
+  private getMutationForNewPricingPlan(plan: Plan): MutationOptions {
+    const from = moment(plan.validFrom).format('YYYY-MM-DD');
+    let to = null;
+    if (plan.validTo) {
+      to = moment(plan.validTo).format('YYYY-MM-DD');
+    }
+    return {
+      mutation: gql`
+        mutation create($planObj:  PricingPlanInput!){
+          createPricingPlan(plan: $planObj){id, name, validFrom, validTo, basePrice, unitPrice, seriesId}
         }`,
       variables: {
         planObj: {
           name: plan.name,
-          seriesId: plan.seriesId,
-          basePrice: plan.basePrice,
-          unitPrice: plan.unitPrice,
           validFrom: from,
           validTo: to,
+          basePrice: plan.basePrice,
+          unitPrice: plan.unitPrice
         }
       },
       errorPolicy: 'all'
-    }).pipe(map(response => {
-        const createdPlan: Plan = (response.data as any).createPricingPlan;
-        if (createdPlan) {
-          for (const listener of this.listeners) {
-            listener.pricingPlanAdded(createdPlan);
-          }
-        }
-        return createdPlan;
-      }
-    ));
+    };
   }
 }

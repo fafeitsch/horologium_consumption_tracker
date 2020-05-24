@@ -1,4 +1,4 @@
-<form #myForm="ngForm">
+<form #myForm="ngForm" [class.mat-elevation-z24]="true">
   <mat-form-field>
     <mat-label>Name</mat-label>
     <input matInput required [(ngModel)]="editedPlan.name" name="planName" ngDefaultControl/>

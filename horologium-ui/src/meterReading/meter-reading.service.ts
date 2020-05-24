@@ -36,7 +36,6 @@ export class MeterReadingService {
   }
 
   saveMeterReading(meterReading: MeterReading): Observable<MeterReading> {
-    const from = moment(meterReading.date).format('YYYY-MM-DD');
     let mutation;
     if (meterReading.id) {
       mutation = this.getMutationForExistingReading(meterReading);
@@ -87,15 +86,15 @@ export class MeterReadingService {
     const from = moment(meterReading.date).format('YYYY-MM-DD');
     return {
       mutation: gql`
-        mutation modify($id: Int!, $readingObj: MeterReadingChange!){
-          modifyMeterReading(id: $id, reading: $readingObj){id, seriesId, date, count}
+        mutation modify($readingObj: MeterReadingChange!){
+          modifyMeterReading(reading: $readingObj){id, seriesId, date, count}
         }`,
       variables: {
         readingObj: {
           count: meterReading.count,
           date: from,
-        },
-        id: meterReading.id
+          id: meterReading.id
+        }
       },
       errorPolicy: 'all'
     };
