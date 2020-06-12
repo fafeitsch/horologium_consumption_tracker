@@ -13,12 +13,32 @@ type Series struct {
 	Readings []MeterReading
 }
 
+func (s *Series) mapToDomain() (*domain.Series, error) {
+	plans := make([]domain.PricingPlan, 0, len(s.Plans))
+	for index, plan := range s.Plans {
+		domainPlan, err := plan.mapToDomain()
+		if err != nil {
+			return nil, fmt.Errorf("could not parse plan %d: %v", index, err)
+		}
+		plans = append(plans, *domainPlan)
+	}
+	readings := make([]domain.MeterReading, 0, len(s.Readings))
+	for index, reading := range s.Readings {
+		domainReading, err := reading.mapToDomain()
+		if err != nil {
+			return nil, fmt.Errorf("could not parse reading %d: %v", index, err)
+		}
+		readings = append(readings, *domainReading)
+	}
+	return &domain.Series{Name: s.Name, PricingPlans: plans, MeterReadings: readings}, nil
+}
+
 type PricingPlan struct {
 	Name      string
-	BasePrice float64
-	UnitPrice float64
-	ValidFrom string
-	ValidTo   *string
+	BasePrice float64 `json:"basePrice"`
+	UnitPrice float64 `json:"unitPrice"`
+	ValidFrom string  `json:"validFrom"`
+	ValidTo   *string `json:"validTo"`
 }
 
 func (p *PricingPlan) mapToDomain() (*domain.PricingPlan, error) {

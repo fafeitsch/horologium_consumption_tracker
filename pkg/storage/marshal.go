@@ -8,6 +8,8 @@ import (
 	"io"
 )
 
+//Reads the yaml file provided by the reader and returns a series struct.
+//In case of parsing errors, an error is returned.
 func LoadFromReader(reader io.Reader) (*domain.Series, error) {
 	buf := new(bytes.Buffer)
 	_, err := buf.ReadFrom(reader)
@@ -16,5 +18,9 @@ func LoadFromReader(reader io.Reader) (*domain.Series, error) {
 	}
 	series := Series{}
 	err = yaml.Unmarshal(buf.Bytes(), &series)
-	return nil, err
+	if err != nil {
+		formatError := yaml.FormatError(err, true, true)
+		return nil, fmt.Errorf("unmarshalling yaml failed: " + formatError)
+	}
+	return series.mapToDomain()
 }

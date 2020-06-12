@@ -7,8 +7,10 @@ import (
 )
 
 type Series struct {
-	Id   uint
-	Name string
+	Id            uint
+	Name          string
+	PricingPlans  PricingPlans
+	MeterReadings MeterReadings
 }
 
 type MeterReading struct {
@@ -75,3 +77,5 @@ type PricingPlan struct {
 	ValidTo   *time.Time
 	Series    *Series
 }
+
+type PricingPlans []PricingPlan

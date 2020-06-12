@@ -4,9 +4,80 @@ import (
 	"errors"
 	"github.com/fafeitsch/Horologium/pkg/util"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"testing"
 	"time"
 )
+
+//noinspection GoNilness
+func TestSeries_MapToDomain(t *testing.T) {
+	to := "2020-02-29"
+	plan1 := PricingPlan{
+		Name:      "Year 2000",
+		BasePrice: 1202.23,
+		UnitPrice: 19.2,
+		ValidFrom: "2000-01-01",
+		ValidTo:   &to,
+	}
+	plan2 := PricingPlan{
+		Name:      "To Infinity",
+		BasePrice: 1823.12,
+		UnitPrice: 27.23,
+		ValidFrom: "2020-03-01",
+		ValidTo:   nil,
+	}
+	reading1 := MeterReading{
+		Count: 3242,
+		Date:  "2008-10-14",
+	}
+	reading2 := MeterReading{
+		Count: 6585,
+		Date:  "2013-05-23",
+	}
+	tests := []struct {
+		name           string
+		wantPlanErr    bool
+		wantReadingErr bool
+		wantErrMessage string
+	}{
+		{name: "wrong plan", wantPlanErr: true, wantReadingErr: false, wantErrMessage: "could not parse plan 0: could not parse validFrom date: parsing time \"10.04.2004\" as \"2006-01-02\": cannot parse \"4.2004\" as \"2006\""},
+		{name: "wrong reading", wantPlanErr: false, wantReadingErr: true, wantErrMessage: "could not parse reading 0: could not parse date: parsing time \"----\" as \"2006-01-02\": cannot parse \"----\" as \"2006\""},
+		{name: "success", wantPlanErr: false, wantReadingErr: false, wantErrMessage: ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var plans []PricingPlan
+			if tt.wantPlanErr {
+				plans = []PricingPlan{{ValidFrom: "10.04.2004"}}
+			} else {
+				plans = []PricingPlan{plan1, plan2}
+			}
+			var readings []MeterReading
+			if tt.wantReadingErr {
+				readings = []MeterReading{{Date: "----"}}
+			} else {
+				readings = []MeterReading{reading1, reading2}
+			}
+			series := Series{
+				Name:     "Test Series",
+				Plans:    plans,
+				Readings: readings,
+			}
+			got, err := series.mapToDomain()
+			if tt.wantPlanErr || tt.wantReadingErr {
+				assert.Nil(t, got, "result should be nil in case of an error")
+				assert.EqualError(t, err, tt.wantErrMessage, "error message wrong")
+			} else {
+				require.NotNil(t, got, "got must not be nil")
+				assert.Equal(t, series.Name, got.Name, "name is wrong")
+				require.Equal(t, len(series.Plans), len(got.PricingPlans), "number of pricing plans is wrong")
+				assert.Equal(t, series.Plans[1].UnitPrice, got.PricingPlans[1].UnitPrice, "UnitPrice of second plan wrong")
+				require.Equal(t, len(series.Readings), len(got.MeterReadings), "number or meter readings is wrong")
+				assert.Equal(t, series.Readings[1].Count, got.MeterReadings[1].Count, "count of second meter reading is wrong")
+			}
+		})
+	}
+}
 
 func TestPricingPlan_MapToDomain(t *testing.T) {
 	to := "2018-08-13"
