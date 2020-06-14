@@ -2,7 +2,6 @@ package consumption
 
 import (
 	"fmt"
-	"github.com/fafeitsch/Horologium/pkg/domain"
 	"github.com/fafeitsch/Horologium/pkg/util"
 	"time"
 )
@@ -10,8 +9,8 @@ import (
 type Parameters struct {
 	Start    time.Time
 	End      time.Time
-	Readings domain.MeterReadings
-	Plans    []domain.PricingPlan
+	Readings MeterReadings
+	Plans    []PricingPlan
 }
 
 // TODO:

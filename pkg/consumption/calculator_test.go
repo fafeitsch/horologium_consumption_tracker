@@ -2,7 +2,6 @@ package consumption
 
 import (
 	"fmt"
-	"github.com/fafeitsch/Horologium/pkg/domain"
 	"github.com/fafeitsch/Horologium/pkg/util"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -10,57 +9,57 @@ import (
 )
 
 func testData() Parameters {
-	plan0 := domain.PricingPlan{
+	plan0 := PricingPlan{
 		ValidFrom: util.FormatDatePtr(2018, 1, 1),
 		ValidTo:   util.FormatDatePtr(2019, 1, 1),
 		BasePrice: 100,
 		UnitPrice: 100,
 	}
-	plan1 := domain.PricingPlan{
+	plan1 := PricingPlan{
 		ValidFrom: util.FormatDatePtr(2019, 1, 1),
 		ValidTo:   util.FormatDatePtr(2019, 7, 31),
 		BasePrice: 10.8,
 		UnitPrice: 2.3,
 	}
-	plan2 := domain.PricingPlan{
+	plan2 := PricingPlan{
 		ValidFrom: util.FormatDatePtr(2019, 8, 1),
 		ValidTo:   util.FormatDatePtr(2019, 9, 30),
 		BasePrice: 11.2,
 		UnitPrice: 2.7,
 	}
-	plan3 := domain.PricingPlan{
+	plan3 := PricingPlan{
 		ValidFrom: util.FormatDatePtr(2019, 10, 1),
 		ValidTo:   util.FormatDatePtr(2019, 12, 31),
 		BasePrice: 11.9,
 		UnitPrice: 3.4,
 	}
-	zeroReading := domain.MeterReading{
+	zeroReading := MeterReading{
 		Count: 85,
 		Date:  util.FormatDate(2019, 1, 1),
 	}
-	firstReading := domain.MeterReading{
+	firstReading := MeterReading{
 		Count: 125,
 		Date:  util.FormatDate(2019, 4, 12),
 	}
-	secondReading := domain.MeterReading{
+	secondReading := MeterReading{
 		Count: 335,
 		Date:  util.FormatDate(2019, 6, 13),
 	}
-	thirdReading := domain.MeterReading{
+	thirdReading := MeterReading{
 		Count: 400,
 		Date:  util.FormatDate(2019, 7, 1),
 	}
-	forthReading := domain.MeterReading{
+	forthReading := MeterReading{
 		Date:  util.FormatDate(2019, 10, 10),
 		Count: 652,
 	}
-	fifthReading := domain.MeterReading{
+	fifthReading := MeterReading{
 		Count: 932,
 		Date:  util.FormatDate(2019, 12, 31),
 	}
 	return Parameters{
-		Readings: []domain.MeterReading{zeroReading, firstReading, secondReading, thirdReading, forthReading, fifthReading},
-		Plans:    []domain.PricingPlan{plan0, plan1, plan2, plan3},
+		Readings: []MeterReading{zeroReading, firstReading, secondReading, thirdReading, forthReading, fifthReading},
+		Plans:    []PricingPlan{plan0, plan1, plan2, plan3},
 	}
 }
 

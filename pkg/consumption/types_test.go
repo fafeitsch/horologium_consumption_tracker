@@ -1,4 +1,4 @@
-package domain
+package consumption
 
 import (
 	"github.com/fafeitsch/Horologium/pkg/util"

@@ -21,6 +21,7 @@ require (
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/stretchr/objx v0.2.0 // indirect
 	github.com/stretchr/testify v1.5.1
+	github.com/urfave/cli/v2 v2.1.1
 	github.com/vektah/gqlparser/v2 v2.0.1
 	golang.org/x/crypto v0.0.0-20200423211502-4bdfaf469ed5
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect

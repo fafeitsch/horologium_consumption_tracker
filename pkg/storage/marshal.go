@@ -3,14 +3,14 @@ package storage
 import (
 	"bytes"
 	"fmt"
-	"github.com/fafeitsch/Horologium/pkg/domain"
+	"github.com/fafeitsch/Horologium/pkg/consumption"
 	"github.com/goccy/go-yaml"
 	"io"
 )
 
 //Reads the yaml file provided by the reader and returns a series struct.
 //In case of parsing errors, an error is returned.
-func LoadFromReader(reader io.Reader) (*domain.Series, error) {
+func LoadFromReader(reader io.Reader) (*consumption.Series, error) {
 	buf := new(bytes.Buffer)
 	_, err := buf.ReadFrom(reader)
 	if err != nil {
