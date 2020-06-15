@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"github.com/fafeitsch/Horologium/pkg/consumption"
+	"github.com/fafeitsch/Horologium/pkg/render"
 	"github.com/fafeitsch/Horologium/pkg/storage"
 	"github.com/urfave/cli/v2"
 	"log"
@@ -40,7 +40,7 @@ func main() {
 				Plans:    series.PricingPlans,
 			}
 			stats := consumption.MonthlyCosts(parameters)
-			fmt.Printf("%v", stats)
+			render.MonthlyStatistics(os.Stdout, stats)
 			return nil
 		},
 	}
