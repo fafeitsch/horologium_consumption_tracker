@@ -1,8 +1,7 @@
-package consumption
+package horologium
 
 import (
 	"fmt"
-	"github.com/fafeitsch/Horologium/pkg/util"
 	"time"
 )
 
@@ -70,7 +69,7 @@ func MonthlyCosts(params Parameters) []Statistics {
 		addedStart := date.AddDate(0, 1, 0)
 		month := addedStart.Month()
 		year := addedStart.Year()
-		monthEnd, _ := time.Parse(util.DateFormat, fmt.Sprintf("%d-%02d-%02d", year, month, 1))
+		monthEnd, _ := time.Parse(DateFormat, fmt.Sprintf("%d-%02d-%02d", year, month, 1))
 		return monthEnd
 	}
 	return granularCosts(params, nextTime)

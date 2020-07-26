@@ -1,9 +1,7 @@
 package main
 
 import (
-	"github.com/fafeitsch/Horologium/pkg/consumption"
-	"github.com/fafeitsch/Horologium/pkg/render"
-	"github.com/fafeitsch/Horologium/pkg/storage"
+	"github.com/fafeitsch/Horologium/horologium"
 	"github.com/urfave/cli/v2"
 	"log"
 	"os"
@@ -29,18 +27,18 @@ func main() {
 			defer func() {
 				_ = reader.Close()
 			}()
-			series, err := storage.LoadFromReader(reader)
+			series, err := horologium.LoadFromReader(reader)
 			if err != nil {
 				return err
 			}
-			parameters := consumption.Parameters{
+			parameters := horologium.Parameters{
 				Start:    time.Now().AddDate(0, -6, 0),
 				End:      time.Now(),
 				Readings: series.MeterReadings,
 				Plans:    series.PricingPlans,
 			}
-			stats := consumption.MonthlyCosts(parameters)
-			render.MonthlyStatistics(os.Stdout, stats)
+			stats := horologium.MonthlyCosts(parameters)
+			horologium.MonthlyStatistics(os.Stdout, stats)
 			return nil
 		},
 	}

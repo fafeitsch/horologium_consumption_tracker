@@ -1,14 +1,13 @@
-package render
+package horologium
 
 import (
 	"fmt"
-	"github.com/fafeitsch/Horologium/pkg/consumption"
 	"io"
 	"math"
 	"strings"
 )
 
-func MonthlyStatistics(writer io.Writer, stats []consumption.Statistics) {
+func MonthlyStatistics(writer io.Writer, stats []Statistics) {
 	rows := make([][]string, 0, len(stats))
 	for _, stat := range stats {
 		month := stat.ValidFrom.Month().String()
