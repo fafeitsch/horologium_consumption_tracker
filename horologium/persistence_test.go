@@ -1,26 +1,43 @@
 package horologium
 
 import (
-	"bytes"
 	"errors"
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"io/ioutil"
+	"log"
 	"strings"
 	"testing"
 	"time"
 )
 
-func TestLoadFromReader(t *testing.T) {
-	file, _ := ioutil.ReadFile("../test-resources/series/powerSeries.yml")
-	buffer := bytes.NewBuffer(file)
-	got, err := LoadFromReader(buffer)
-	require.NoError(t, err, "no error expected")
-	assert.Equal(t, "A pseudo power consumption for testing", got.Name, "name not correct")
-	require.Equal(t, 3, len(got.PricingPlans))
-	assert.Equal(t, "2019", got.PricingPlans[1].Name)
-	require.Equal(t, 3, len(got.MeterReadings))
-	assert.Equal(t, 1299.23, got.MeterReadings[2].Count)
+func ExampleLoadFromReader() {
+	file :=
+		`name: "A pseudo power consumption for testing"
+plans:
+  - {name: 2018, basePrice: 1241.34, unitPrice: 26.32, validFrom: "2018-01-01", validTo: "2018-12-31"}
+  - {name: 2019, basePrice: 1341.12, unitPrice: 27.28, validFrom: "2019-01-01", validTo: "2019-12-31"}
+  - {name: 2020, basePrice: 1400.28, unitPrice: 26.56, validFrom: "2020-01-01", validTo: "2020-12-31"}
+readings:
+  - {date: 2018-02-01, count: 1223.34}
+  - {date: 2018-03-01, count: 1256.93}
+  - {date: 2018-04-01, count: 1299.23}`
+
+	reader := strings.NewReader(file)
+	got, err := LoadFromReader(reader)
+	if err != nil {
+		log.Fatalf("got error: %v", err)
+	}
+	fmt.Printf("Name: %s\n", got.Name)
+	fmt.Printf("Number of plans: %d\n", len(got.PricingPlans))
+	fmt.Printf("Name of first plan: %s\n", got.PricingPlans[0].Name)
+	fmt.Printf("Number of readings: %d\n", len(got.MeterReadings))
+	fmt.Printf("Count of third reading: %.2f", got.MeterReadings[2].Count)
+	// Output: Name: A pseudo power consumption for testing
+	// Number of plans: 3
+	// Name of first plan: 2018
+	// Number of readings: 3
+	// Count of third reading: 1299.23
 }
 
 type errReader struct {
@@ -121,13 +138,13 @@ func TestPricingPlan_MapToDomain(t *testing.T) {
 		validFrom     string
 		validTo       *string
 		wantValidFrom time.Time
-		wantValidTo   *time.Time
+		wantValidTo   *string
 		wantErr       error
 	}{
-		{name: "success", validFrom: "2018-07-10", validTo: &to, wantValidFrom: FormatDate(2018, 7, 10), wantValidTo: FormatDatePtr(2018, 8, 13), wantErr: nil},
-		{name: "success without validTo", validFrom: "2018-07-10", validTo: nil, wantValidFrom: FormatDate(2018, 7, 10), wantValidTo: nil, wantErr: nil},
-		{name: "cannot parse validFrom", validFrom: "notADate", validTo: nil, wantValidFrom: FormatDate(2018, 7, 10), wantValidTo: nil, wantErr: errors.New("could not parse validFrom date: parsing time \"notADate\" as \"2006-01-02\": cannot parse \"notADate\" as \"2006\"")},
-		{name: "cannot parse validFrom", validFrom: "2018-07-10", validTo: &notADate, wantValidFrom: FormatDate(2018, 7, 10), wantValidTo: nil, wantErr: errors.New("could not parse validTo date: parsing time \"notADate\" as \"2006-01-02\": cannot parse \"notADate\" as \"2006\"")},
+		{name: "success", validFrom: "2018-07-10", validTo: &to, wantValidFrom: CreateDate(2018, 7, 10), wantValidTo: &to, wantErr: nil},
+		{name: "success without validTo", validFrom: "2018-07-10", validTo: nil, wantValidFrom: CreateDate(2018, 7, 10), wantValidTo: nil, wantErr: nil},
+		{name: "cannot parse validFrom", validFrom: "notADate", validTo: nil, wantValidFrom: CreateDate(2018, 7, 10), wantValidTo: nil, wantErr: errors.New("could not parse validFrom date: parsing time \"notADate\" as \"2006-01-02\": cannot parse \"notADate\" as \"2006\"")},
+		{name: "cannot parse validFrom", validFrom: "2018-07-10", validTo: &notADate, wantValidFrom: CreateDate(2018, 7, 10), wantValidTo: nil, wantErr: errors.New("could not parse validTo date: parsing time \"notADate\" as \"2006-01-02\": cannot parse \"notADate\" as \"2006\"")},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -139,7 +156,12 @@ func TestPricingPlan_MapToDomain(t *testing.T) {
 			} else {
 				assert.Equal(t, plan.Name, got.Name, "name is wrong")
 				assert.Equal(t, tt.wantValidFrom, *got.ValidFrom, "validFrom is wrong")
-				assert.Equal(t, tt.wantValidTo, got.ValidTo, "validTo is wrong")
+				var wantValidTo *time.Time
+				if tt.wantValidTo != nil {
+					t, _ := time.Parse(DateFormat, *tt.wantValidTo)
+					wantValidTo = &t
+				}
+				assert.Equal(t, wantValidTo, got.ValidTo, "validTo is wrong")
 				assert.Equal(t, 1023.12, got.BasePrice, "basePrice  is wrong")
 				assert.Equal(t, 34.23, got.UnitPrice, "unitPrice is wrong")
 			}
@@ -154,7 +176,7 @@ func TestMeterReading_MapToDomain(t *testing.T) {
 		wantTime time.Time
 		wantErr  error
 	}{
-		{name: "success", date: "2018-05-31", wantTime: FormatDate(2018, 5, 31), wantErr: nil},
+		{name: "success", date: "2018-05-31", wantTime: CreateDate(2018, 5, 31), wantErr: nil},
 		{name: "wrong date", date: "not a date", wantErr: errors.New("could not parse date: parsing time \"not a date\" as \"2006-01-02\": cannot parse \"not a date\" as \"2006\"")},
 	}
 	for _, tt := range tests {

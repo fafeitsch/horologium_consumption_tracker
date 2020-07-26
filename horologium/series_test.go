@@ -9,52 +9,52 @@ import (
 
 func testData() *Series {
 	plan0 := PricingPlan{
-		ValidFrom: FormatDatePtr(2018, 1, 1),
-		ValidTo:   FormatDatePtr(2019, 1, 1),
+		ValidFrom: formatDatePtr(2018, 1, 1),
+		ValidTo:   formatDatePtr(2019, 1, 1),
 		BasePrice: 100,
 		UnitPrice: 100,
 	}
 	plan1 := PricingPlan{
-		ValidFrom: FormatDatePtr(2019, 1, 1),
-		ValidTo:   FormatDatePtr(2019, 7, 31),
+		ValidFrom: formatDatePtr(2019, 1, 1),
+		ValidTo:   formatDatePtr(2019, 7, 31),
 		BasePrice: 10.8,
 		UnitPrice: 2.3,
 	}
 	plan2 := PricingPlan{
-		ValidFrom: FormatDatePtr(2019, 8, 1),
-		ValidTo:   FormatDatePtr(2019, 9, 30),
+		ValidFrom: formatDatePtr(2019, 8, 1),
+		ValidTo:   formatDatePtr(2019, 9, 30),
 		BasePrice: 11.2,
 		UnitPrice: 2.7,
 	}
 	plan3 := PricingPlan{
-		ValidFrom: FormatDatePtr(2019, 10, 1),
-		ValidTo:   FormatDatePtr(2019, 12, 31),
+		ValidFrom: formatDatePtr(2019, 10, 1),
+		ValidTo:   formatDatePtr(2019, 12, 31),
 		BasePrice: 11.9,
 		UnitPrice: 3.4,
 	}
 	zeroReading := MeterReading{
 		Count: 85,
-		Date:  FormatDate(2019, 1, 1),
+		Date:  CreateDate(2019, 1, 1),
 	}
 	firstReading := MeterReading{
 		Count: 125,
-		Date:  FormatDate(2019, 4, 12),
+		Date:  CreateDate(2019, 4, 12),
 	}
 	secondReading := MeterReading{
 		Count: 335,
-		Date:  FormatDate(2019, 6, 13),
+		Date:  CreateDate(2019, 6, 13),
 	}
 	thirdReading := MeterReading{
 		Count: 400,
-		Date:  FormatDate(2019, 7, 1),
+		Date:  CreateDate(2019, 7, 1),
 	}
 	forthReading := MeterReading{
-		Date:  FormatDate(2019, 10, 10),
+		Date:  CreateDate(2019, 10, 10),
 		Count: 652,
 	}
 	fifthReading := MeterReading{
 		Count: 932,
-		Date:  FormatDate(2019, 12, 31),
+		Date:  CreateDate(2019, 12, 31),
 	}
 	return &Series{
 		PricingPlans:  []PricingPlan{plan0, plan1, plan2, plan3},
@@ -62,33 +62,39 @@ func testData() *Series {
 	}
 }
 
+func formatDatePtr(year int, month int, day int) *time.Time {
+	result := CreateDate(year, month, day)
+	return &result
+}
+
 func TestCalculate_Simple(t *testing.T) {
 	series := testData()
 	tests := []struct {
 		name            string
 		start           time.Time
-		end             *time.Time
+		end             time.Time
 		wantCosts       float64
 		wantConsumption float64
 	}{
 		{
 			name:            "two months (simple)",
-			start:           FormatDate(2019, 4, 15),
-			end:             FormatDatePtr(2019, 5, 31),
+			start:           CreateDate(2019, 4, 15),
+			end:             CreateDate(2019, 5, 31),
 			wantCosts:       379.9548387096775,
 			wantConsumption: 155.80645161290326,
 		}, {
 			name:            "year",
-			start:           FormatDate(2019, 1, 1),
-			end:             FormatDatePtr(2019, 12, 31),
+			start:           CreateDate(2019, 1, 1),
+			end:             CreateDate(2019, 12, 31),
 			wantCosts:       2475.380198019802,
 			wantConsumption: 847,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			costs, accumulatedConsumption := series.CostsAndConsumption(tt.start, *tt.end)
-			consumption := series.MeterReadings.Consumption(tt.start, *tt.end)
+
+			costs, accumulatedConsumption := series.CostsAndConsumption(tt.start, tt.end)
+			consumption := series.MeterReadings.Consumption(tt.start, tt.end)
 			assert.Equal(t, tt.wantCosts, costs, "calculated costs not correct")
 			assert.Equal(t, tt.wantConsumption, consumption, "calculated consumption not correct")
 			assert.Equal(t, tt.wantConsumption, accumulatedConsumption, "accumulated calculated consumption not correct")
@@ -120,25 +126,25 @@ func TestMonthsBetween(t *testing.T) {
 
 func TestMonthlyCosts(t *testing.T) {
 	series := testData()
-	got := series.MonthlyCosts(FormatDate(2019, 1, 1), FormatDate(2019, 3, 24))
+	got := series.MonthlyCosts(CreateDate(2019, 1, 1), CreateDate(2019, 3, 24))
 	assert.Equal(t, 3, len(got), "there should be twelve months in the statistic")
 	wantJanuary := Statistics{
-		ValidFrom:   FormatDate(2019, 1, 1),
-		ValidTo:     FormatDate(2019, 2, 1),
+		ValidFrom:   CreateDate(2019, 1, 1),
+		ValidTo:     CreateDate(2019, 2, 1),
 		Costs:       39.03762376237624,
 		Consumption: 12.277227722772281,
 	}
 	assertStats(t, wantJanuary, got[0], "January")
 	wantFebruary := Statistics{
-		ValidFrom:   FormatDate(2019, 2, 1),
-		ValidTo:     FormatDate(2019, 3, 1),
+		ValidFrom:   CreateDate(2019, 2, 1),
+		ValidTo:     CreateDate(2019, 3, 1),
 		Costs:       36.304950495049496,
 		Consumption: 11.089108910891085,
 	}
 	assertStats(t, wantFebruary, got[1], "February")
 	wantMarch := Statistics{
-		ValidFrom:   FormatDate(2019, 3, 1),
-		ValidTo:     FormatDate(2019, 3, 24),
+		ValidFrom:   CreateDate(2019, 3, 1),
+		ValidTo:     CreateDate(2019, 3, 24),
 		Costs:       31.750495049504952,
 		Consumption: 9.10891089108911,
 	}

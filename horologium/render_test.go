@@ -17,26 +17,26 @@ const wantTable = `|   MONTH   | YEAR | CONSUMPTION |   COSTS    |
 func TestMonthlyStatistics(t *testing.T) {
 	stats := []Statistics{
 		{
-			ValidFrom:   FormatDate(2019, 12, 1),
-			ValidTo:     FormatDate(2020, 1, 1),
+			ValidFrom:   CreateDate(2019, 12, 1),
+			ValidTo:     CreateDate(2020, 1, 1),
 			Costs:       1341.12,
 			Consumption: 42.23,
 		},
 		{
-			ValidFrom:   FormatDate(2020, 1, 1),
-			ValidTo:     FormatDate(2020, 2, 1),
+			ValidFrom:   CreateDate(2020, 1, 1),
+			ValidTo:     CreateDate(2020, 2, 1),
 			Costs:       1343.28,
 			Consumption: 53.76,
 		},
 		{
-			ValidFrom:   FormatDate(2020, 2, 1),
-			ValidTo:     FormatDate(2020, 3, 1),
+			ValidFrom:   CreateDate(2020, 2, 1),
+			ValidTo:     CreateDate(2020, 3, 1),
 			Costs:       1123744.74,
 			Consumption: 75.34,
 		},
 		{
-			ValidFrom:   FormatDate(2020, 3, 1),
-			ValidTo:     FormatDate(2020, 4, 1),
+			ValidFrom:   CreateDate(2020, 3, 1),
+			ValidTo:     CreateDate(2020, 4, 1),
 			Costs:       633.28,
 			Consumption: 12.53,
 		},
