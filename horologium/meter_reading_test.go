@@ -33,10 +33,10 @@ func TestInterpolateValueAtDate(t *testing.T) {
 
 func TestLastReadingBefore(t *testing.T) {
 	readings := MeterReadings{
-		{Date: FormatDate(2019, 9, 12), Id: 5},
-		{Date: FormatDate(2019, 9, 23), Id: 6},
-		{Date: FormatDate(2019, 9, 27), Id: 7},
-		{Date: FormatDate(2019, 9, 30), Id: 8},
+		{Date: FormatDate(2019, 9, 12)},
+		{Date: FormatDate(2019, 9, 23)},
+		{Date: FormatDate(2019, 9, 27)},
+		{Date: FormatDate(2019, 9, 30)},
 	}
 	t.Run("simple", func(t *testing.T) {
 		got := readings.lastReadingBefore(FormatDate(2019, 9, 26))
@@ -54,10 +54,10 @@ func TestLastReadingBefore(t *testing.T) {
 
 func TestFirstReadingAfter(t *testing.T) {
 	readings := MeterReadings{
-		{Date: FormatDate(2019, 9, 12), Id: 5},
-		{Date: FormatDate(2019, 9, 23), Id: 6},
-		{Date: FormatDate(2019, 9, 27), Id: 7},
-		{Date: FormatDate(2019, 9, 30), Id: 8},
+		{Date: FormatDate(2019, 9, 12)},
+		{Date: FormatDate(2019, 9, 23)},
+		{Date: FormatDate(2019, 9, 27)},
+		{Date: FormatDate(2019, 9, 30)},
 	}
 	cpy := make(MeterReadings, len(readings))
 	copy(cpy, readings)

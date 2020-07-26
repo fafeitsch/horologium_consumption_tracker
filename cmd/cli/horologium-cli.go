@@ -31,13 +31,7 @@ func main() {
 			if err != nil {
 				return err
 			}
-			parameters := horologium.Parameters{
-				Start:    time.Now().AddDate(0, -6, 0),
-				End:      time.Now(),
-				Readings: series.MeterReadings,
-				Plans:    series.PricingPlans,
-			}
-			stats := horologium.MonthlyCosts(parameters)
+			stats := series.MonthlyCosts(time.Now().AddDate(0, -6, 0), time.Now())
 			horologium.MonthlyStatistics(os.Stdout, stats)
 			return nil
 		},

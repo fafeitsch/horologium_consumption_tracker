@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func testData() Parameters {
+func testData() *Series {
 	plan0 := PricingPlan{
 		ValidFrom: FormatDatePtr(2018, 1, 1),
 		ValidTo:   FormatDatePtr(2019, 1, 1),
@@ -56,14 +56,14 @@ func testData() Parameters {
 		Count: 932,
 		Date:  FormatDate(2019, 12, 31),
 	}
-	return Parameters{
-		Readings: []MeterReading{zeroReading, firstReading, secondReading, thirdReading, forthReading, fifthReading},
-		Plans:    []PricingPlan{plan0, plan1, plan2, plan3},
+	return &Series{
+		PricingPlans:  []PricingPlan{plan0, plan1, plan2, plan3},
+		MeterReadings: []MeterReading{zeroReading, firstReading, secondReading, thirdReading, forthReading, fifthReading},
 	}
 }
 
 func TestCalculate_Simple(t *testing.T) {
-	params := testData()
+	series := testData()
 	tests := []struct {
 		name            string
 		start           time.Time
@@ -87,10 +87,8 @@ func TestCalculate_Simple(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			params.Start = tt.start
-			params.End = *tt.end
-			costs, accumulatedConsumption := Costs(params)
-			consumption := params.Readings.Consumption(tt.start, *tt.end)
+			costs, accumulatedConsumption := series.CostsAndConsumption(tt.start, *tt.end)
+			consumption := series.MeterReadings.Consumption(tt.start, *tt.end)
 			assert.Equal(t, tt.wantCosts, costs, "calculated costs not correct")
 			assert.Equal(t, tt.wantConsumption, consumption, "calculated consumption not correct")
 			assert.Equal(t, tt.wantConsumption, accumulatedConsumption, "accumulated calculated consumption not correct")
@@ -121,10 +119,8 @@ func TestMonthsBetween(t *testing.T) {
 }
 
 func TestMonthlyCosts(t *testing.T) {
-	params := testData()
-	params.Start, _ = time.Parse(DateFormat, "2019-01-01")
-	params.End, _ = time.Parse(DateFormat, "2019-03-24")
-	got := MonthlyCosts(params)
+	series := testData()
+	got := series.MonthlyCosts(FormatDate(2019, 1, 1), FormatDate(2019, 3, 24))
 	assert.Equal(t, 3, len(got), "there should be twelve months in the statistic")
 	wantJanuary := Statistics{
 		ValidFrom:   FormatDate(2019, 1, 1),

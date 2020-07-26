@@ -7,18 +7,9 @@ import (
 	"time"
 )
 
-type Series struct {
-	Id            uint
-	Name          string
-	PricingPlans  PricingPlans
-	MeterReadings MeterReadings
-}
-
 type MeterReading struct {
-	Id     uint
-	Count  float64
-	Date   time.Time
-	Series *Series
+	Count float64
+	Date  time.Time
 }
 
 type MeterReadings []MeterReading
@@ -68,18 +59,6 @@ func (m MeterReadings) Consumption(start time.Time, end time.Time) float64 {
 	valueEnd := m.interpolateValueAtDate(end)
 	return valueEnd - valueStart
 }
-
-type PricingPlan struct {
-	Id        uint
-	Name      string
-	BasePrice float64
-	UnitPrice float64
-	ValidFrom *time.Time
-	ValidTo   *time.Time
-	Series    *Series
-}
-
-type PricingPlans []PricingPlan
 
 func FormatDate(year int, month int, day int) time.Time {
 	result, _ := time.Parse(DateFormat, fmt.Sprintf("%04d-%02d-%02d", year, month, day))
