@@ -31,7 +31,7 @@ func main() {
 			if err != nil {
 				return err
 			}
-			stats := series.MonthlyCosts(time.Now().AddDate(0, -6, 0), time.Now())
+			stats := series.MonthlyStatistics(time.Now().AddDate(0, -6, 0), time.Now())
 			horologium.MonthlyStatistics(os.Stdout, stats)
 			return nil
 		},

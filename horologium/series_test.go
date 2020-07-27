@@ -16,13 +16,13 @@ func testData() *Series {
 	}
 	plan1 := PricingPlan{
 		ValidFrom: formatDatePtr(2019, 1, 1),
-		ValidTo:   formatDatePtr(2019, 7, 31),
+		ValidTo:   formatDatePtr(2019, 8, 1),
 		BasePrice: 10.8,
 		UnitPrice: 2.3,
 	}
 	plan2 := PricingPlan{
 		ValidFrom: formatDatePtr(2019, 8, 1),
-		ValidTo:   formatDatePtr(2019, 9, 30),
+		ValidTo:   formatDatePtr(2019, 10, 1),
 		BasePrice: 11.2,
 		UnitPrice: 2.7,
 	}
@@ -102,6 +102,28 @@ func TestCalculate_Simple(t *testing.T) {
 	}
 }
 
+func ExampleSeries_CostsAndConsumption() {
+
+	pricingPlanEnd := CreateDate(2019, 6, 1)
+	p1 := PricingPlan{ValidFrom: nil, ValidTo: &pricingPlanEnd, BasePrice: 10, UnitPrice: .20}
+	p2 := PricingPlan{ValidFrom: &pricingPlanEnd, ValidTo: nil, BasePrice: 10, UnitPrice: .30}
+	plans := PricingPlans{p1, p2}
+	// Simple calculation, we consume constantly 100 units per day:
+	m1 := MeterReading{Date: CreateDate(2019, 5, 1), Count: 1000}
+	m2 := MeterReading{Date: CreateDate(2019, 6, 1), Count: 4100}
+	m3 := MeterReading{Date: CreateDate(2019, 7, 1), Count: 7100}
+	readings := MeterReadings{m1, m2, m3}
+	series := Series{PricingPlans: plans, MeterReadings: readings}
+	cost, consumption := series.CostsAndConsumption(CreateDate(2019, 5, 15), CreateDate(2019, 6, 15))
+	// Base price of first pricing plan is not included because the the month is already half over.
+	// This gives: 31 days between 2019-05-15 and 2019-06-15 → 31 * 100 = 3100 consumption
+	// First 16 days in pricing plan 1: 16 * 100 * 0.2 = 320
+	// Last 25 days in pricing plan 2: 15 * 100 * 0.3 = 450
+	// 320 + 450 + base price of pricing plan 2 = 780
+	fmt.Printf("Cost: %.2f, Consumption: %.2f", cost, consumption)
+	// Output: Cost: 780.00, Consumption: 3100.00
+}
+
 func TestMonthsBetween(t *testing.T) {
 	tests := []struct {
 		start string
@@ -126,7 +148,7 @@ func TestMonthsBetween(t *testing.T) {
 
 func TestMonthlyCosts(t *testing.T) {
 	series := testData()
-	got := series.MonthlyCosts(CreateDate(2019, 1, 1), CreateDate(2019, 3, 24))
+	got := series.MonthlyStatistics(CreateDate(2019, 1, 1), CreateDate(2019, 3, 24))
 	assert.Equal(t, 3, len(got), "there should be twelve months in the statistic")
 	wantJanuary := Statistics{
 		ValidFrom:   CreateDate(2019, 1, 1),
