@@ -7,9 +7,15 @@ import (
 	"strings"
 )
 
-func MonthlyStatistics(writer io.Writer, stats []Statistics) {
-	rows := make([][]string, 0, len(stats))
-	for _, stat := range stats {
+// MonthlyStatistics is a slice of Statistics which contain one Statistics per month
+// over a certain timespan.
+type MonthlyStatistics []Statistics
+
+// Render converts the MonthlyStatistics to a nice-looking table (see example).
+// This method assumes that the MonthlyStatistics are sorted (earliest month first).
+func (s MonthlyStatistics) Render(writer io.Writer) {
+	rows := make([][]string, 0, len(s))
+	for _, stat := range s {
 		month := stat.ValidFrom.Month().String()
 		year := fmt.Sprintf("%d", stat.ValidFrom.Year())
 		cons := fmt.Sprintf("%.2f", stat.Consumption)

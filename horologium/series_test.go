@@ -103,7 +103,6 @@ func TestCalculate_Simple(t *testing.T) {
 }
 
 func ExampleSeries_CostsAndConsumption() {
-
 	pricingPlanEnd := CreateDate(2019, 6, 1)
 	p1 := PricingPlan{ValidFrom: nil, ValidTo: &pricingPlanEnd, BasePrice: 10, UnitPrice: .20}
 	p2 := PricingPlan{ValidFrom: &pricingPlanEnd, ValidTo: nil, BasePrice: 10, UnitPrice: .30}
@@ -171,6 +170,25 @@ func TestMonthlyCosts(t *testing.T) {
 		Consumption: 9.10891089108911,
 	}
 	assertStats(t, wantMarch, got[2], "March")
+}
+
+func ExampleSeries_MonthlyStatistics() {
+	pricingPlanEnd := CreateDate(2019, 6, 1)
+	p1 := PricingPlan{ValidFrom: nil, ValidTo: &pricingPlanEnd, BasePrice: 10, UnitPrice: .20}
+	p2 := PricingPlan{ValidFrom: &pricingPlanEnd, ValidTo: nil, BasePrice: 10, UnitPrice: .30}
+	plans := PricingPlans{p1, p2}
+	// Simple calculation, we consume constantly 100 units per day:
+	m1 := MeterReading{Date: CreateDate(2019, 5, 1), Count: 1000}
+	m2 := MeterReading{Date: CreateDate(2019, 6, 1), Count: 4100}
+	m3 := MeterReading{Date: CreateDate(2019, 7, 1), Count: 7100}
+	readings := MeterReadings{m1, m2, m3}
+	series := Series{PricingPlans: plans, MeterReadings: readings}
+	statistics := series.MonthlyStatistics(CreateDate(2019, 5, 1), CreateDate(2019, 7, 1))
+	for _, stat := range statistics {
+		fmt.Printf("%s – %s, Consumption: %.2f, Cost: %.2f\n", stat.ValidFrom.Format(DateFormat), stat.ValidTo.Format(DateFormat), stat.Consumption, stat.Costs)
+	}
+	// Output: 2019-05-01 – 2019-06-01, Consumption: 3100.00, Cost: 630.00
+	// 2019-06-01 – 2019-07-01, Consumption: 3000.00, Cost: 910.00
 }
 
 func assertStats(t *testing.T, want Statistics, got Statistics, msg string) {

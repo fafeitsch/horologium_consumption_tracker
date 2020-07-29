@@ -1,3 +1,4 @@
+// Package main contains the CLI program for Horologium.
 package main
 
 import (
@@ -32,7 +33,7 @@ func main() {
 				return err
 			}
 			stats := series.MonthlyStatistics(time.Now().AddDate(0, -6, 0), time.Now())
-			horologium.MonthlyStatistics(os.Stdout, stats)
+			stats.Render(os.Stdout)
 			return nil
 		},
 	}

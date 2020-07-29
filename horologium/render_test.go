@@ -1,21 +1,11 @@
 package horologium
 
 import (
-	"bytes"
-	"github.com/stretchr/testify/assert"
-	"testing"
+	"os"
 )
 
-const wantTable = `|   MONTH   | YEAR | CONSUMPTION |   COSTS    |
-|-----------|------|-------------|------------|
-| December  | 2019 |       42.23 |    1341.12 |
-| January   | 2020 |       53.76 |    1343.28 |
-| February  |      |       75.34 | 1123744.74 |
-| March     |      |       12.53 |     633.28 |
-`
-
-func TestMonthlyStatistics(t *testing.T) {
-	stats := []Statistics{
+func ExampleMonthlyStatistics_Render() {
+	stats := MonthlyStatistics{
 		{
 			ValidFrom:   CreateDate(2019, 12, 1),
 			ValidTo:     CreateDate(2020, 1, 1),
@@ -31,7 +21,7 @@ func TestMonthlyStatistics(t *testing.T) {
 		{
 			ValidFrom:   CreateDate(2020, 2, 1),
 			ValidTo:     CreateDate(2020, 3, 1),
-			Costs:       1123744.74,
+			Costs:       3252.74,
 			Consumption: 75.34,
 		},
 		{
@@ -41,7 +31,12 @@ func TestMonthlyStatistics(t *testing.T) {
 			Consumption: 12.53,
 		},
 	}
-	buffer := bytes.Buffer{}
-	MonthlyStatistics(&buffer, stats)
-	assert.Equal(t, wantTable, buffer.String(), "rendered table is wrong")
+	stats.Render(os.Stdout)
+	// Output:
+	// |   MONTH   | YEAR | CONSUMPTION |  COSTS  |
+	// |-----------|------|-------------|---------|
+	// | December  | 2019 |       42.23 | 1341.12 |
+	// | January   | 2020 |       53.76 | 1343.28 |
+	// | February  |      |       75.34 | 3252.74 |
+	// | March     |      |       12.53 |  633.28 |
 }

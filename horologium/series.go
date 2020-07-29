@@ -1,7 +1,6 @@
 package horologium
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -91,13 +90,14 @@ type Statistics struct {
 }
 
 // Monthly statistics computes costs and consumption for every month in the specified time span.
-// The result is returned in a statistics slice.
-func (s *Series) MonthlyStatistics(start time.Time, end time.Time) []Statistics {
+// The result is returned as Monthly Statistics, which can be rendered as table.
+// The monthly statistics are sorted ascendingly with earliest months first.
+func (s *Series) MonthlyStatistics(start time.Time, end time.Time) MonthlyStatistics {
 	nextTime := func(date time.Time) time.Time {
 		addedStart := date.AddDate(0, 1, 0)
 		month := addedStart.Month()
 		year := addedStart.Year()
-		monthEnd, _ := time.Parse(DateFormat, fmt.Sprintf("%d-%02d-%02d", year, month, 1))
+		monthEnd := CreateDate(year, int(month), 1)
 		return monthEnd
 	}
 	return s.granularCosts(start, end, nextTime)
