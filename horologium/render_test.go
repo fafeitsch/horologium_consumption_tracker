@@ -31,7 +31,7 @@ func ExampleMonthlyStatistics_Render() {
 			Consumption: 12.53,
 		},
 	}
-	stats.Render(os.Stdout)
+	stats.RenderTable(os.Stdout)
 	// Output:
 	// |   MONTH   | YEAR | CONSUMPTION |  COSTS  |
 	// |-----------|------|-------------|---------|
@@ -39,4 +39,7 @@ func ExampleMonthlyStatistics_Render() {
 	// | January   | 2020 |       53.76 | 1343.28 |
 	// | February  |      |       75.34 | 3252.74 |
 	// | March     |      |       12.53 |  633.28 |
+	// |-----------|------|-------------|---------|
+	// | TOTAL     |      |      183.86 | 6570.42 |
+	// |-----------|------|-------------|---------|
 }

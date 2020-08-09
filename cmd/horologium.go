@@ -39,7 +39,7 @@ func main() {
 			beforeMonths := time.Now().AddDate(0, int(-math.Abs(float64(months))), 0)
 			start := horologium.CreateDate(beforeMonths.Year(), int(beforeMonths.Month()), 1)
 			stats := series.MonthlyStatistics(start, time.Now())
-			stats.Render(os.Stdout)
+			stats.RenderTable(os.Stdout)
 			return nil
 		},
 	}
