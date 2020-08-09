@@ -31,6 +31,8 @@ the following format:
 
 ```yaml
 name: "A pseudo power consumption for testing"
+consumptionFormat: "%.2f" # Optional, defaults to %.2f
+currencyFormat: "%.2f"    # Optional, defaults to %.2f
 plans:
   - {name: 2018, basePrice: 1241.34, unitPrice: 26.32, validFrom: "2018-01-01", validTo: "2018-01-01"}
   - {name: 2019, basePrice: 1341.12, unitPrice: 27.28, validFrom: "2019-01-01", validTo: "2019-01-01"}

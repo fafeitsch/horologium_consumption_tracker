@@ -18,8 +18,8 @@ func (s MonthlyStatistics) Render(writer io.Writer) {
 	for _, stat := range s {
 		month := stat.ValidFrom.Month().String()
 		year := fmt.Sprintf("%d", stat.ValidFrom.Year())
-		cons := fmt.Sprintf("%.2f", stat.Consumption)
-		costs := fmt.Sprintf("%.2f", stat.Costs)
+		cons := stat.FormatConsumption()
+		costs := stat.FormatCosts()
 		row := []string{month, year, cons, costs}
 		rows = append(rows, row)
 	}

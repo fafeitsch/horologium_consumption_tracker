@@ -26,9 +26,11 @@ func LoadFromReader(reader io.Reader) (*Series, error) {
 }
 
 type seriesDto struct {
-	Name     string
-	Plans    []pricingPlanDto
-	Readings []meterReadingDto
+	Name              string
+	ConsumptionFormat string `json:"consumptionFormat"`
+	CurrencyFormat    string `json:"currencyFormat"`
+	Plans             []pricingPlanDto
+	Readings          []meterReadingDto
 }
 
 func (s *seriesDto) mapToDomain() (*Series, error) {
@@ -48,7 +50,12 @@ func (s *seriesDto) mapToDomain() (*Series, error) {
 		}
 		readings = append(readings, *domainReading)
 	}
-	return &Series{Name: s.Name, PricingPlans: plans, MeterReadings: readings}, nil
+	return &Series{
+		Name:              s.Name,
+		ConsumptionFormat: s.ConsumptionFormat,
+		CurrencyFormat:    s.CurrencyFormat,
+		PricingPlans:      plans,
+		MeterReadings:     readings}, nil
 }
 
 type pricingPlanDto struct {

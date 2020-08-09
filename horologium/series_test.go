@@ -197,3 +197,21 @@ func assertStats(t *testing.T, want Statistics, got Statistics, msg string) {
 	assert.Equal(t, want.Consumption, got.Consumption, "consumption of %s is not correct", msg)
 	assert.Equal(t, want.Costs, got.Costs, "costs of %s is not correct", msg)
 }
+
+func ExampleStatistics_FormatConsumption() {
+	statistics := Statistics{Consumption: 34.444}
+	fmt.Printf("Default format: %s\n", statistics.FormatConsumption())
+	statistics.ConsumptionFormat = "%.3f kWh"
+	fmt.Printf("Custom format: %s", statistics.FormatConsumption())
+	// Output: Default format: 34.44
+	// Custom format: 34.444 kWh
+}
+
+func ExampleStatistics_FormatCosts() {
+	statistics := Statistics{Costs: 27.856}
+	fmt.Printf("Default format: %s\n", statistics.FormatCosts())
+	statistics.CurrencyFormat = "%.3f €"
+	fmt.Printf("Custom format: %s", statistics.FormatCosts())
+	// Output: Default format: 27.86
+	// Custom format: 27.856 €
+}

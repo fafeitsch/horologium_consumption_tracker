@@ -1,6 +1,7 @@
 package horologium
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -20,9 +21,11 @@ type PricingPlans []PricingPlan
 // Series combines pricing plans and meter readings. It offers methods to calculate the
 // costs and consumption in a certain time interval.
 type Series struct {
-	Name          string        // the name of the series
-	PricingPlans  PricingPlans  // the collection of pricing plans
-	MeterReadings MeterReadings // the collection of meter readings.
+	Name              string        // the name of the series
+	ConsumptionFormat string        // the format used for the consumption, e.g. %.2f kWh
+	CurrencyFormat    string        // the format used for the currency, e.g. %.2f Euro,
+	PricingPlans      PricingPlans  // the collection of pricing plans
+	MeterReadings     MeterReadings // the collection of meter readings.
 }
 
 // CostsAndConsumption computes the costs and consumption of a certain series.
@@ -83,10 +86,32 @@ func monthsBetween(start time.Time, end time.Time) int {
 
 // Statistics contain information about costs in consumption in a certain time interval.
 type Statistics struct {
-	ValidFrom   time.Time
-	ValidTo     time.Time
-	Costs       float64
-	Consumption float64
+	ValidFrom         time.Time
+	ValidTo           time.Time
+	Costs             float64
+	Consumption       float64
+	ConsumptionFormat string
+	CurrencyFormat    string
+}
+
+// FormatConsumption formats the consumption of the statistics
+// according to the Statistics's ConsumptionFormat field.
+// Uses a reasonable default format if the ConsumptionFormat is empty.
+func (s *Statistics) FormatConsumption() string {
+	if len(s.ConsumptionFormat) == 0 {
+		return fmt.Sprintf("%.2f", s.Consumption)
+	}
+	return fmt.Sprintf(s.ConsumptionFormat, s.Consumption)
+}
+
+// CurrencyFormat formats the costs of the statistics
+// according to the Statistic's CostsFormat field.
+// Uses a reasonable default format if the CurrencyFormat is empty.
+func (s *Statistics) FormatCosts() string {
+	if len(s.CurrencyFormat) == 0 {
+		return fmt.Sprintf("%.2f", s.Costs)
+	}
+	return fmt.Sprintf(s.CurrencyFormat, s.Costs)
 }
 
 // Monthly statistics computes costs and consumption for every month in the specified time span.
@@ -113,10 +138,12 @@ func (s *Series) granularCosts(start time.Time, end time.Time, nextTime func(dat
 		}
 		costs, cons := s.CostsAndConsumption(monthStart, monthEnd)
 		stats := Statistics{
-			ValidFrom:   monthStart,
-			ValidTo:     monthEnd,
-			Costs:       costs,
-			Consumption: cons,
+			ValidFrom:         monthStart,
+			ValidTo:           monthEnd,
+			Costs:             costs,
+			Consumption:       cons,
+			ConsumptionFormat: s.ConsumptionFormat,
+			CurrencyFormat:    s.CurrencyFormat,
 		}
 		result = append(result, stats)
 		monthStart = monthEnd

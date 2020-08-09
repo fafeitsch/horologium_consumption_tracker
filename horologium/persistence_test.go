@@ -14,6 +14,8 @@ import (
 func ExampleLoadFromReader() {
 	file :=
 		`name: "A pseudo power consumption for testing"
+consumptionFormat: "%.2f kWh"
+currencyFormat: "%.2f Euro"
 plans:
   - {name: 2018, basePrice: 1241.34, unitPrice: 26.32, validFrom: "2018-01-01", validTo: "2018-12-31"}
   - {name: 2019, basePrice: 1341.12, unitPrice: 27.28, validFrom: "2019-01-01", validTo: "2019-12-31"}
@@ -32,12 +34,16 @@ readings:
 	fmt.Printf("Number of plans: %d\n", len(got.PricingPlans))
 	fmt.Printf("Name of first plan: %s\n", got.PricingPlans[0].Name)
 	fmt.Printf("Number of readings: %d\n", len(got.MeterReadings))
-	fmt.Printf("Count of third reading: %.2f", got.MeterReadings[2].Count)
+	fmt.Printf("Count of third reading: %.2f\n", got.MeterReadings[2].Count)
+	fmt.Printf("Consumption format: %s\n", got.ConsumptionFormat)
+	fmt.Printf("Currency format: %s\n", got.CurrencyFormat)
 	// Output: Name: A pseudo power consumption for testing
 	// Number of plans: 3
 	// Name of first plan: 2018
 	// Number of readings: 3
 	// Count of third reading: 1299.23
+	// Consumption format: %.2f kWh
+	// Currency format: %.2f Euro
 }
 
 type errReader struct {
