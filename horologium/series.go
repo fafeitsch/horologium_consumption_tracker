@@ -37,7 +37,7 @@ type Series struct {
 // in the time between start and end (see example).
 //
 // This method assumes the following about the series. It may panic or deliver wrong results if the bullet points
-// are not fulfilled (in future, the will be a method to check this prerequisites)
+// are not fulfilled (in future, the will be a method to check these prerequisites)
 // * the time spans defined in the pricing plans must not overlap and be continuous
 // * the first pricing plans's validFrom must either be before start or be nil
 // * the last pricing plan's validTo must eiether be after end or be nil

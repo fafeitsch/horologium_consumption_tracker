@@ -12,14 +12,14 @@ import (
 
 func main() {
 	var months int
-	monthsFlag := cli.IntFlag{Name: "lastMonths", Value: 6, Usage: "The number of last full months to show in the statistics (exlcuding the current month).", Destination: &months}
+	monthsFlag := cli.IntFlag{Name: "lastMonths", Value: 6, Usage: "The number of last full months to show in the statistics (excluding the current month).", Destination: &months}
 	app := cli.App{
 		Name:                 "Horologium",
 		Description:          "Horologium reads consumption files and reports the consumption as well as the generated costs on a monthly basis.",
 		Authors:              []*cli.Author{{Name: "Fabian Feitsch", Email: "info@fafeitsch.de"}},
 		Copyright:            "MIT License",
 		Usage:                "horologium [OPTIONS] DATA_FILE",
-		Version:              "1.0.0",
+		Version:              "1.1.0",
 		Commands:             []*cli.Command{},
 		EnableBashCompletion: true,
 		Flags:                []cli.Flag{&monthsFlag},

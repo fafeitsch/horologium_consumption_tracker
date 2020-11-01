@@ -19,7 +19,10 @@ type MeterReadings []MeterReading
 func (m MeterReadings) interpolateValueAtDate(date time.Time) float64 {
 	firstReading := m.lastReadingBefore(date)
 	lastReading := m.firstReadingAfter(date)
-	if firstReading == lastReading {
+	if firstReading == nil {
+		return lastReading.Count
+	}
+	if *firstReading == lastReading {
 		lastReading = m.firstReadingAfter(firstReading.Date.Add(24 * time.Hour))
 	}
 	if date == lastReading.Date || date.After(lastReading.Date) {
@@ -31,12 +34,15 @@ func (m MeterReadings) interpolateValueAtDate(date time.Time) float64 {
 	return slope*xValue + firstReading.Count
 }
 
-func (m MeterReadings) lastReadingBefore(date time.Time) MeterReading {
+func (m MeterReadings) lastReadingBefore(date time.Time) *MeterReading {
 	index := 0
 	for index < len(m) && (m[index].Date.Equal(date) || m[index].Date.Before(date)) {
 		index = index + 1
 	}
-	return m[index-1]
+	if index-1 < 0 {
+		return nil
+	}
+	return &m[index-1]
 }
 
 func (m MeterReadings) firstReadingAfter(date time.Time) MeterReading {

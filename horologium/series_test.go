@@ -147,29 +147,36 @@ func TestMonthsBetween(t *testing.T) {
 
 func TestMonthlyCosts(t *testing.T) {
 	series := testData()
-	got := series.MonthlyStatistics(CreateDate(2019, 1, 1), CreateDate(2019, 3, 24))
-	assert.Equal(t, 3, len(got), "there should be twelve months in the statistic")
+	got := series.MonthlyStatistics(CreateDate(2018, 12, 1), CreateDate(2019, 3, 24))
+	assert.Equal(t, 4, len(got), "there should be four months in the statistic")
+	wantDecember := Statistics{
+		ValidFrom:   CreateDate(2018, 12, 1),
+		ValidTo:     CreateDate(2019, 1, 1),
+		Costs:       100,
+		Consumption: 0,
+	}
+	assertStats(t, wantDecember, got[0], "December")
 	wantJanuary := Statistics{
 		ValidFrom:   CreateDate(2019, 1, 1),
 		ValidTo:     CreateDate(2019, 2, 1),
 		Costs:       39.03762376237624,
 		Consumption: 12.277227722772281,
 	}
-	assertStats(t, wantJanuary, got[0], "January")
+	assertStats(t, wantJanuary, got[1], "January")
 	wantFebruary := Statistics{
 		ValidFrom:   CreateDate(2019, 2, 1),
 		ValidTo:     CreateDate(2019, 3, 1),
 		Costs:       36.304950495049496,
 		Consumption: 11.089108910891085,
 	}
-	assertStats(t, wantFebruary, got[1], "February")
+	assertStats(t, wantFebruary, got[2], "February")
 	wantMarch := Statistics{
 		ValidFrom:   CreateDate(2019, 3, 1),
 		ValidTo:     CreateDate(2019, 3, 24),
 		Costs:       31.750495049504952,
 		Consumption: 9.10891089108911,
 	}
-	assertStats(t, wantMarch, got[2], "March")
+	assertStats(t, wantMarch, got[3], "March")
 }
 
 func ExampleSeries_MonthlyStatistics() {
@@ -183,11 +190,13 @@ func ExampleSeries_MonthlyStatistics() {
 	m3 := MeterReading{Date: CreateDate(2019, 7, 1), Count: 7100}
 	readings := MeterReadings{m1, m2, m3}
 	series := Series{PricingPlans: plans, MeterReadings: readings}
-	statistics := series.MonthlyStatistics(CreateDate(2019, 5, 1), CreateDate(2019, 7, 1))
+	statistics := series.MonthlyStatistics(CreateDate(2019, 4, 1), CreateDate(2019, 7, 1))
 	for _, stat := range statistics {
 		fmt.Printf("%s – %s, Consumption: %.2f, Cost: %.2f\n", stat.ValidFrom.Format(DateFormat), stat.ValidTo.Format(DateFormat), stat.Consumption, stat.Costs)
 	}
-	// Output: 2019-05-01 – 2019-06-01, Consumption: 3100.00, Cost: 630.00
+	// Output:
+	// 2019-04-01 – 2019-05-01, Consumption: 0.00, Cost: 10.00
+	// 2019-05-01 – 2019-06-01, Consumption: 3100.00, Cost: 630.00
 	// 2019-06-01 – 2019-07-01, Consumption: 3000.00, Cost: 910.00
 }
 

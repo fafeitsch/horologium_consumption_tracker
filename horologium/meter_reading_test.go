@@ -22,6 +22,7 @@ func TestInterpolateValueAtDate(t *testing.T) {
 		{date: "2019-09-30", want: 178},
 		{date: "2020-01-02", want: 178},
 		{date: "2019-09-26", want: 120.5},
+		{date: "2012-10-05", want: 45},
 	}
 	for _, tt := range tests {
 		t.Run(tt.date, func(t *testing.T) {
@@ -41,15 +42,18 @@ func TestLastReadingBefore(t *testing.T) {
 	}
 	t.Run("simple", func(t *testing.T) {
 		got := readings.lastReadingBefore(CreateDate(2019, 9, 26))
-		assert.Equal(t, readings[1], got, "last reading calculated incorrectly")
+		assert.Equal(t, readings[1], *got, "last reading calculated incorrectly")
 	})
 	t.Run("same day", func(t *testing.T) {
 		got := readings.lastReadingBefore(CreateDate(2019, 9, 23))
-		assert.Equal(t, readings[1], got, "last reading calculated incorrectly")
+		assert.Equal(t, readings[1], *got, "last reading calculated incorrectly")
 	})
 	t.Run("all smaller", func(t *testing.T) {
 		got := readings.lastReadingBefore(CreateDate(2019, 10, 1))
-		assert.Equal(t, readings[3], got, "last reading calculated incorrectly")
+		assert.Equal(t, readings[3], *got, "last reading calculated incorrectly")
+	})
+	t.Run("reading not available", func(t *testing.T) {
+		assert.Nil(t, readings.lastReadingBefore(CreateDate(2010, 10, 2)), "if no reading is available, return 0 instead")
 	})
 }
 
